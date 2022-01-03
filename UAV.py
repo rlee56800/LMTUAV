@@ -1,9 +1,7 @@
-import matplotlib.pyplot as plt
-
 longitude = []
 lattitude = []
 
-map = {}
+result = {}
 
 file = open(r"C:\\Users\\justi\Desktop\\logData.txt", "r+")
 
@@ -21,7 +19,12 @@ for line in file:
         i = i[6]
         longitude.append(i)
 
-plt.plot(lattitude, longitude)
-plt.show()
-
 file.close()
+
+for longi in longitude:
+    for lat in lattitude:
+        result[longi] = lat
+        lattitude.remove(lat)
+        break
+    
+print(result)
