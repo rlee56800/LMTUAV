@@ -23,11 +23,11 @@ with open(name) as file:
             longitude.append(float(i))
 
 
-plt.figure(figsize=(10, 7))
-plt.scatter(lattitude, longitude)
-plt.plot(lattitude, longitude)
+plt.figure(figsize=(10, 7)) # Window size
+plt.scatter(lattitude, longitude) # Creates scatter plot
+plt.plot(lattitude, longitude) # Creates line
 
-plt.ticklabel_format(useOffset=False)
+plt.ticklabel_format(useOffset=False) # Display axes correctly
 
 plt.title(title)
 plt.xlabel('Latitude')
