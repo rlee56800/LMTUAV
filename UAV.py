@@ -2,8 +2,10 @@
 import matplotlib.pyplot as plt
 
 ########## CHANGE FILE NAME HERE ########## 
-name = 'Log Outputs 2021_12_24/log_output_2021_12_24 (1).txt'
-title = 'Flight Graph: 12/24/21 Simulation 1'
+name = 'Log Outputs 2021_12_24/log_output_2021_12_24 (3).txt'
+title = 'Flight Graph: 12/24/21 Simulation 3'
+
+
 
 longitude = []
 lattitude = []
@@ -21,8 +23,11 @@ with open(name) as file:
             longitude.append(float(i))
 
 
+plt.figure(figsize=(10, 7))
 plt.scatter(lattitude, longitude)
 plt.plot(lattitude, longitude)
+
+plt.ticklabel_format(useOffset=False)
 
 plt.title(title)
 plt.xlabel('Latitude')
