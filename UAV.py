@@ -1,3 +1,4 @@
+
 import matplotlib.pyplot as plt
 
 ########## CHANGE FILE NAME HERE ########## 
@@ -9,7 +10,7 @@ lattitude = []
 
 with open(name) as file:
     for line in file:
-
+      
         if 'Current lattitude' in line:
             i = line.split()
             i = i[6]
@@ -18,6 +19,7 @@ with open(name) as file:
             i = line.split()
             i = i[6]
             longitude.append(float(i))
+
 
 plt.scatter(lattitude, longitude)
 plt.plot(lattitude, longitude)
