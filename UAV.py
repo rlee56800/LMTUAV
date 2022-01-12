@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+#import tkinter
 
 ########## CHANGE FILE NAME HERE ########## 
 title = 'Flight Graph: 12/24/21 Simulation 3'
@@ -7,6 +8,11 @@ name = 'Log Outputs 2021_12_24/log_output_2021_12_24 (3).txt'
 show_predicted = [0, 10, 20, 30] # index/indices of value to show predicted values
 
 
+########## GUI ########## 
+#master = tkinter.Tk(className="Graph Options")
+#tkinter
+
+########## Graphing ########## 
 longitude = []
 lattitude = []
 future_pos_x = []
@@ -61,3 +67,5 @@ plt.xlabel('Latitude')
 plt.ylabel('Longitude')
 
 plt.show()
+
+#master.mainloop()
