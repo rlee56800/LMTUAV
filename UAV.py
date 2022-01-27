@@ -53,7 +53,7 @@ def main(graph_name: str, file_name: str, predicted_indices = []):
             #plt.scatter(future_pos_x[i], future_pos_y[i]) # scatter plot dots
             plt.plot(future_pos_x[i], future_pos_y[i]) # line
 
-    #plt.scatter(lattitude, longitude, color='black') # Creates scatter plot (dots)
+    plt.scatter(lattitude, longitude, color='black') # Creates scatter plot (dots)
     plt.plot(lattitude, longitude, color='black') # Creates line
 
     plt.ticklabel_format(useOffset=False) # Display axes correctly

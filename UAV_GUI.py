@@ -1,7 +1,4 @@
 from tkinter import *
-from tokenize import String
-from turtle import width
-from typing import Type
 import UAV
 
 master = Tk(className="Graph Options")
@@ -42,12 +39,12 @@ def show_error(error_msg: str, error_msg2: str = ''):
 ########## GUI ########## 
 
 # graph_name: str
-Label(master, text = 'Title of Graph: (str) ').grid(column=0, row=1, padx=5, pady=5)
+Label(master, text = 'Title of Graph:').grid(column=0, row=1, padx=5, pady=5)
 e_graph = Entry(master, width=textbox_width, textvariable=graph_name)
 e_graph.grid(column=1, row=1, padx=5, pady=5)
 
 # file_name: str
-Label(master, text = 'Name of File (containing data): ').grid(column=0, row=2, padx=5, pady=5)
+Label(master, text = 'Name of File: ').grid(column=0, row=2, padx=5, pady=5)
 e_file = Entry(master, width=textbox_width, textvariable=file_name)
 e_file.grid(column=1, row=2, padx=5, pady=5)
 
