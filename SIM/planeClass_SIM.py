@@ -88,6 +88,13 @@ class Plane():
         
         self.location_home      = LocationGlobalRelative(0,0,0) #- LocationRelative type home
         self.location_current   = LocationGlobalRelative(0,0,0) #- LocationRelative type current position
+
+        # Received information from partner XBee
+        self.receive_lattitude = 0.0        #- [deg]    latitude
+        self.receive_longitude = 0.0        #- [deg]    longitude
+        self.receive_altitude = 0.0         #- [m]      altitude
+        self.receive_velocity = 0.0         #- [m/s]    velocity of craft
+        self.receive_airspeed = 0.0         #- [m/s]    airspeed
         
     def _connect(self, connection_string):      #-- (private) Connect to Vehicle
         """ (private) connect with the autopilot
@@ -454,7 +461,11 @@ class Plane():
         self.vehicle.channels.overrides = {}
 
     def prediction(self):
-        times = 0        
+        
+        if self.pos_lat == self.receive_lattitude and self.pos_lon == self.receive_longitude:
+            print("Collision detected.")
+
+        '''times = 0        
         distX = 0
         distY = 0
         distZ = 0
@@ -544,7 +555,7 @@ class Plane():
                     print("************************************************************")
                     vehicle_1.avoid(v2posX, posX, v2posY, posY, posZ)
  
-            time.sleep(5)
+            time.sleep(5)'''
 
 
     def save_to_file(self):
@@ -621,14 +632,12 @@ class Plane():
 
             # Variable Saving
             lst_msg = msg.split("\n")
-            
-            global msg_lattitude, msg_longitude, msg_altitude, msg_velocity, msg_airspeed
 
-            msg_lattitude = (lst_msg[1].split())[-1]
-            msg_longitude = (lst_msg[2].split())[-1]
-            msg_altitude = (lst_msg[3].split())[-1]
-            msg_velocity = (lst_msg[4].split())[-1]
-            msg_airspeed = (lst_msg[5].split())[-1]
+            self.receive_lattitude = (lst_msg[1].split())[-1]
+            self.receive_longitude = (lst_msg[2].split())[-1]
+            self.receive_altitude = (lst_msg[3].split())[-1]
+            self.receive_velocity = (lst_msg[4].split())[-1]
+            self.receive_airspeed = (lst_msg[5].split())[-1]
             # Variable Saving end
 
             time.sleep(0.1)
