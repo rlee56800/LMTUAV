@@ -37,26 +37,26 @@ def serialread():
 
 while True:
     
-    msg = ser.readline().decode()
+ #   msg = ser.readline().decode()
+    msg = ser.read().decode()
     print(msg)
  
     '''
     msg = serialread()
     
     if msg:
-     
-		parsed_string = msg.split(':')
-		
-		if parsed_string[0] == "ICAO": 
-			print ('ICAO: ', parsed_string[1])
-		elif parsed_string[0] == "Lattitude": 
-			print ('Lattitude: ', parsed_string[1])
-		elif parsed_string[0] == "Longitude": 
-			print ('Longitude: ', parsed_string[1])    
-		elif parsed_string[0] == "Altitude": 
-			print ('Altitude: ', parsed_string[1])    
-		elif parsed_string[0] == "Velocity": 
-			print ('Velocity: ', parsed_string[1])   
-		elif parsed_string[0] == "Airspeed": 
-			print ('Airspeed: ', parsed_string[1])  
-    '''
+        parsed_string = msg.split(':')
+            
+        if parsed_string[0] == "ICAO": 
+            print ('ICAO: ', parsed_string[1])
+        elif parsed_string[0] == "Lattitude": 
+            print ('Lattitude: ', parsed_string[1])
+        elif parsed_string[0] == "Longitude": 
+            print ('Longitude: ', parsed_string[1])    
+        elif parsed_string[0] == "Altitude": 
+            print ('Altitude: ', parsed_string[1])    
+        elif parsed_string[0] == "Velocity": 
+            print ('Velocity: ', parsed_string[1])   
+        elif parsed_string[0] == "Airspeed": 
+            print ('Airspeed: ', parsed_string[1])  
+        '''

@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-<<<<<<< HEAD
+
 
 ########## CHANGE FILE NAME HERE ########## 
 name = 'Log Outputs 2021_12_24/log_output_2021_12_24 (1).txt'
@@ -32,7 +32,7 @@ plt.xlabel('Latitude')
 plt.ylabel('Longitude')
 
 plt.show()
-=======
+
 
 ########## CHANGE FILE NAME HERE ########## 
 title_of_graph = 'Flight Graph: 12/24/21 Simulation 3'
@@ -101,4 +101,3 @@ def main(graph_name: str, file_name: str, predicted_indices = []):
 
 if __name__ == '__main__':
     main(title_of_graph, name_of_file, show_predicted)
->>>>>>> f828a5da47abe12dc64dc129d48eb3ac06f25287
