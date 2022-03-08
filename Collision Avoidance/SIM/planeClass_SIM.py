@@ -680,12 +680,4 @@ class Plane():
         t1.start()
         t2.start()
         t3.start()
-<<<<<<< HEAD
-        t4.start()
-        
-=======
         #t4.start()
-
-        
-  
->>>>>>> 867b3b2014a9a767985b1a3f779421bd84c5b99a
