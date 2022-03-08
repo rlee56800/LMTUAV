@@ -90,6 +90,7 @@ class Plane():
         self.location_current   = LocationGlobalRelative(0,0,0) #- LocationRelative type current position
 
         # Received information from partner XBee
+        self.receive_msg = False
         self.receive_lattitude = 0.0        #- [deg]    latitude
         self.receive_longitude = 0.0        #- [deg]    longitude
         self.receive_altitude = 0.0         #- [m]      altitude
@@ -573,11 +574,14 @@ class Plane():
             # f.write(timeNow + " : " + "second to last lattitude : " + str(secondTolastGPS[0]) + '\n')
             # f.write(timeNow + " : " + "second to last longitude : " + str(secondTolastGPS[1]) + '\n')
 
-            #f.write(timeNow + " : " + "Current Airspped : " + str(self.airspeed) + '\n')
-            f.write(timeNow + " : " + "Intruder X Velocity : " + str(self.receive_velocity[0]) + '\n')
-            f.write(timeNow + " : " + "Intruder Y Velocity : " + str(self.receive_velocity[1]) + '\n')
-            f.write(timeNow + " : " + "Intruder lattitude : " + str(self.receive_lattitude) + '\n')
-            f.write(timeNow + " : " + "Intruder longitude : " + str(self.receive_longitude) + '\n')
+            if(self.receive_msg):
+               # print(self.receive_msg)
+               # print(self.receive_velocity[0])
+                f.write(timeNow + " : " + "Intruder X Velocity : " + str(self.receive_velocity[0]) + '\n')
+                f.write(timeNow + " : " + "Intruder Y Velocity : " + str(self.receive_velocity[1]) + '\n')
+                f.write(timeNow + " : " + "Intruder lattitude : " + str(self.receive_lattitude) + '\n')
+                f.write(timeNow + " : " + "Intruder longitude : " + str(self.receive_longitude) + '\n')
+
 
 
             #secondTolastGPS = [lastGPS[0],lastGPS[0]]
@@ -612,13 +616,13 @@ class Plane():
         #ser.write(msg.encode())
         while True: 
 
-            msg = "ICAO: REBECCA\n"
-            msg += "Lattitude: " + str(self.pos_lat) + '\n'
-            msg += "Longitude: " + str(self.pos_lon) + '\n'
-            msg += "Altitude: " + str(self.pos_alt_rel) + '\n'
-            msg += "Velocity: " + str(self.vehicle.velocity) + '\n'
-            msg += "Airspeed: " + str(self.airspeed) + '\n'
-            msg += "#######################\n"
+            msg = "ICAO: REBECCA;"
+            msg += "Lattitude: " + str(self.pos_lat) + ';'
+            msg += "Longitude: " + str(self.pos_lon) + ';'
+            msg += "Altitude: " + str(self.pos_alt_rel) + ';'
+            msg += "Velocity: " + str(self.vehicle.velocity) + ';'
+            msg += "Airspeed: " + str(self.airspeed) + ';'
+            #msg += "#######################\n"
 
             #Send out ADSB data
             ser.write(msg.encode())
@@ -635,8 +639,12 @@ class Plane():
                 time.sleep(1)
                 msg = ser.readline().decode()
                 print(msg)
-                
 
+            #print("msg!!!!!!!!!!!!\n")
+            #print(msg)
+
+
+            self.receive_msg = True
             # Variable Saving
             #lst_msg = msg.split("\n")
             lst_msg = msg.split(";")
@@ -667,10 +675,17 @@ class Plane():
         t1 = threading.Thread(target=self.save_to_file, daemon=True)
         t2 = threading.Thread(target=self.send_ADSB_data, daemon=True)
         t3 = threading.Thread(target=self.receive_ADSB_data, daemon=True)
-        t4 = threading.Thread(target=self.prediction, daemon=True)
+        #t4 = threading.Thread(target=self.prediction, daemon=True)
 
         t1.start()
         t2.start()
         t3.start()
+<<<<<<< HEAD
         t4.start()
         
+=======
+        #t4.start()
+
+        
+  
+>>>>>>> 867b3b2014a9a767985b1a3f779421bd84c5b99a
