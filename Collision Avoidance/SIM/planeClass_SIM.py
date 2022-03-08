@@ -93,7 +93,7 @@ class Plane():
         self.receive_lattitude = 0.0        #- [deg]    latitude
         self.receive_longitude = 0.0        #- [deg]    longitude
         self.receive_altitude = 0.0         #- [m]      altitude
-        self.receive_velocity = []         #- [m/s]    velocity of craft
+        self.receive_velocity = []          #- [m/s]    velocity of craft
         self.receive_airspeed = 0.0         #- [m/s]    airspeed
         
     def _connect(self, connection_string):      #-- (private) Connect to Vehicle
@@ -462,17 +462,16 @@ class Plane():
 
     def prediction(self):
 
+        # X is Longitude and Y is lattitude
         while True:
             print('***** PREDICTION *****')
             print(self.receive_lattitude)
             print(self.receive_longitude)
             
-            if self.pos_lat == self.receive_lattitude and self.pos_lon == self.receive_longitude:
-                print("Collision detected.")
-            
             time.sleep(3)
 
-        '''times = 0        
+        
+        times = 0        
         distX = 0
         distY = 0
         distZ = 0
@@ -487,31 +486,19 @@ class Plane():
             print("Not Predicting")
             time.sleep(10)
         while vehicle.armed:
-            global velX
-            global velY
-            global velZ
-            global posX
-            global posY
-            global posZ
             velX = float(vehicle.velocity[0])
             velY = float(vehicle.velocity[1])
             velZ = float(vehicle.velocity[2])
-            posX = float(vehicle.location.global_relative_frame.lat)*139
-            posY = float(vehicle.location.global_relative_frame.lon)*111
-            posZ = float(vehicle.location.global_relative_frame.alt)
+            posX = self.pos_lon * 139
+            posY = self.pos_lat * 111
+            posZ = self.pos_alt_rel
  
-            global v2velX
-            global v2velY
-            global v2velZ
-            global v2posX
-            global v2posY
-            global v2posZ
-            v2velX = float(vehicle2.velocity[0])
-            v2velY = float(vehicle2.velocity[1])
-            v2velZ = float(vehicle2.velocity[2])
-            v2posX = float(vehicle2.location.global_relative_frame.lat)*139 
-            v2posY = float(vehicle2.location.global_relative_frame.lon)*111
-            v2posZ = float(vehicle2.location.global_relative_frame.alt)
+            v2velX = self.receive_velocity[0]
+            v2velY = self.receive_velocity[1]
+            v2velZ = self.receive_velocity[2]
+            v2posX = self.receive_longitude * 139 
+            v2posY = self.receive_lattitude * 111
+            v2posZ = self.receive_altitude
             
             
             print("VELOCITY: %s"%vehicle.velocity)  
@@ -522,7 +509,6 @@ class Plane():
             print("Vehicle 1 alt is: %f m" %posZ)
             print("Vehicle 1 position X: %f km" %posX)
             print("Vehicle 1 position Y: %f km" %posY)
- 
             
             print("Vehicle 2 velocity X is: %f m/s"%v2velX)          
             print("Vehicle 2 velocity Y is: %f m/s"%v2velY)
@@ -544,25 +530,25 @@ class Plane():
             timestep = 1
  
             for i in range (10):
-                distX = vehicle_1.getFutureDistanceY(timestep, posX, velX, v2posX, v2velX)
+                distX = self.getFutureDistanceY(timestep, posX, velX, v2posX, v2velX)
                 print("    X distance is %s m"%distX, " in %s seconds"%timestep)
-                distY = vehicle_1.getFutureDistanceX(timestep, posY, velY, v2posY, v2velY)
+                distY = self.getFutureDistanceX(timestep, posY, velY, v2posY, v2velY)
                 print("    Y distance is %s m"%distY, " in %s seconds"%timestep)        
-        
-                distZ = vehicle_1.getFutureDistanceZ(timestep, posZ, velZ, v2posZ, v2velZ)
+
+                distZ = self.getFutureDistanceZ(timestep, posZ, velZ, v2posZ, v2velZ)
                 #print("    Z distance is %s m"%distZ, " in %s seconds"%timestep)
                 times = times + 0.01
                 timestep = timestep + 0.5
-                collisionPredicted = vehicle_1.collisionPredictedCompare(collisionPredicted, distX, distY, distZ, XAvoidTolerance, YAvoidTolerance, ZAvoidTolerance)
+                collisionPredicted = self.collisionPredictedCompare(collisionPredicted, distX, distY, distZ, XAvoidTolerance, YAvoidTolerance, ZAvoidTolerance)
                 if collisionPredicted:
                     print("************************************************************")
                     print("                  Predicted Collision")
                     print(" ")
                     print("predicted collision at (%f,"%vehicle.location.global_relative_frame.lat, " %f)"%vehicle.location.global_relative_frame.lon)
                     print("************************************************************")
-                    vehicle_1.avoid(v2posX, posX, v2posY, posY, posZ)
+                    self.avoid(v2posX, posX, v2posY, posY, posZ)
  
-            time.sleep(5)'''
+            time.sleep(5)
 
 
     def save_to_file(self):
@@ -687,6 +673,4 @@ class Plane():
         t2.start()
         t3.start()
         t4.start()
-
         
-  
