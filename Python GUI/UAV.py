@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 
 
-# ########## CHANGE FILE NAME HERE ########## 
+# ########## CHANGE FILE NAME HERE ##########
 # name = 'Python GUI/Log Outputs 2021_12_24/log_output_2021_12_24 (1).txt'
 # title = 'Flight Graph: 12/24/21 Simulation 1'
 
@@ -34,15 +34,19 @@ import matplotlib.pyplot as plt
 # plt.show()
 
 
-########## CHANGE FILE NAME HERE ########## 
+########## CHANGE FILE NAME HERE ##########
 title_of_graph = 'Flight Graph: 12/24/21 Simulation 3'
 name_of_file = 'Python GUI/Log Outputs 2021_12_24/log_output_2021_12_24 (3).txt'
 ## NOTE: check if file has completed time stamps (i.e. has both future x AND y pos)
 show_predicted = [0, 10, 20, 30] # index/indices of value to show predicted values
 
+def splitter(input_str: str, index: int):
+    i = input_str.split()
+    i = i[index]
+    return float(i)
 
 def main(graph_name: str, file_name: str, predicted_indices = []):
-    ########## Graphing ########## 
+    ########## Graphing ##########
     longitude = []
     lattitude = []
     future_pos_x = []
@@ -50,30 +54,34 @@ def main(graph_name: str, file_name: str, predicted_indices = []):
     x = []
     y = []
 
+    # intruder_longitude = []
+    # intruder_lattitude = []
+
     with open(file_name) as file:
         for line in file:
             if 'Current lattitude' in line:
-                i = line.split()
-                i = i[6]
-                lattitude.append(float(i))
+                lattitude.append(splitter(line, 6))
             elif 'Current longitude' in line:
-                i = line.split()
-                i = i[6]
-                longitude.append(float(i))
+                longitude.append(splitter(line, 6))
+            # elif 'Intruder lattitude' in line:
+            #     i = line.split()
+            #     i = i[6]
+            #     intruder_lattitude.append(splitter(line, 6))
+            # elif 'Intruder longitude' in line:
+            #     i = line.split()
+            #     i = i[6]
+            #     intruder_longitude.append(splitter(line, 6))
             elif '~~~~~~~~~~New Point~~~~~~~~~~~~' in line:
                 # future_pos are lists of future positions from each point
+                # New Point means all 10 futurePos points have been printed
                 future_pos_x.append(x)
                 future_pos_y.append(y)
                 x = []
                 y = []
             elif 'futurePosX' in line:
-                i = line.split()
-                i = i[5]
-                x.append(float(i))
+                x.append(splitter(line, 5))
             elif 'futurePosY' in line:
-                i = line.split()
-                i = i[5]
-                y.append(float(i))
+                y.append(splitter(line, 5))
     future_pos_x.append(x)
     future_pos_y.append(y)
 
