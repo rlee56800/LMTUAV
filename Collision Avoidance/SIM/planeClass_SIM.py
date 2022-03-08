@@ -27,7 +27,7 @@ import serial
 
 ser = serial.Serial(
     
-    port='COM5',
+    port='COM4',
     baudrate = 9600,
     parity=serial.PARITY_NONE,
     stopbits=serial.STOPBITS_ONE,
@@ -487,6 +487,11 @@ class Plane():
             print("Not Predicting")
             time.sleep(10)
         while vehicle.armed:
+
+
+            while not self.receive_msg:
+                pass          
+            
             velX = float(vehicle.velocity[0])
             velY = float(vehicle.velocity[1])
             velZ = float(vehicle.velocity[2])
