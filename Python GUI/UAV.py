@@ -1,42 +1,42 @@
 import matplotlib.pyplot as plt
 
 
-########## CHANGE FILE NAME HERE ########## 
-name = 'Log Outputs 2021_12_24/log_output_2021_12_24 (1).txt'
-title = 'Flight Graph: 12/24/21 Simulation 1'
+# ########## CHANGE FILE NAME HERE ########## 
+# name = 'Python GUI/Log Outputs 2021_12_24/log_output_2021_12_24 (1).txt'
+# title = 'Flight Graph: 12/24/21 Simulation 1'
 
-longitude = []
-lattitude = []
+# longitude = []
+# lattitude = []
 
-with open(name) as file:
-    for line in file:
+# with open(name) as file:
+#     for line in file:
 
-        if 'Current lattitude' in line:
-            i = line.split()
-            i = float(i[6])
-            lattitude.append(i)
-        elif 'Current longitude' in line:
-            i = line.split()
-            i = float(i[6])
-            longitude.append(i)
-
-
-print("{}\n\n{} ".format(longitude, lattitude))
+#         if 'Current lattitude' in line:
+#             i = line.split()
+#             i = float(i[6])
+#             lattitude.append(i)
+#         elif 'Current longitude' in line:
+#             i = line.split()
+#             i = float(i[6])
+#             longitude.append(i)
 
 
-plt.scatter(lattitude, longitude)
-plt.plot(lattitude, longitude)
+# #print("{}\n\n{} ".format(longitude, lattitude))
 
-plt.title(title)
-plt.xlabel('Latitude')
-plt.ylabel('Longitude')
 
-plt.show()
+# plt.scatter(lattitude, longitude)
+# plt.plot(lattitude, longitude)
+
+# plt.title(title)
+# plt.xlabel('Latitude')
+# plt.ylabel('Longitude')
+
+# plt.show()
 
 
 ########## CHANGE FILE NAME HERE ########## 
 title_of_graph = 'Flight Graph: 12/24/21 Simulation 3'
-name_of_file = 'Log Outputs 2021_12_24/log_output_2021_12_24 (3).txt'
+name_of_file = 'Python GUI/Log Outputs 2021_12_24/log_output_2021_12_24 (3).txt'
 ## NOTE: check if file has completed time stamps (i.e. has both future x AND y pos)
 show_predicted = [0, 10, 20, 30] # index/indices of value to show predicted values
 
