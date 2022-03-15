@@ -27,7 +27,7 @@ import serial
 
 ser = serial.Serial(
     
-    port='COM3',
+    port='COM4',
     baudrate = 9600,
     parity=serial.PARITY_NONE,
     stopbits=serial.STOPBITS_ONE,
@@ -495,9 +495,9 @@ class Plane():
             timer = 0
 
             collisionPredicted = 0
-            XAvoidTolerance = 10.0
-            YAvoidTolerance = 10.0
-            ZAvoidTolerance = 10.0
+            XAvoidTolerance = 30.0# 10.0
+            YAvoidTolerance = 30.0# 10.0
+            ZAvoidTolerance = 30.0# 10.0
 
             velX = float(self.vx)
             velY = float(self.vy)
