@@ -588,8 +588,8 @@ class Plane():
  
     
     def avoid(self, intruderX, ownX, intruderY, ownY, distZ):
-        h = abs(intruderX - ownX)
-        k = abs(intruderY - ownY)
+        h = abs(abs(intruderX) - abs(ownX))
+        k = abs(abs(intruderY) - abs(ownY))
         a = 3
         b = 2
         d = (a**4)*(k**2) + (a**2)*(b**2)*(h**2)
@@ -607,8 +607,16 @@ class Plane():
         #y = ownY
         #x += 15
         #y += 15
-        xAvoid = x/139
-        yAvoid = y/111
+        print('~~~~~ LON LAT ~~~~~')
+        print(self.pos_lat)
+        print(self.pos_lon)
+
+        print('~~~~~ X Y VALUES ~~~~~')
+        print(x)
+        print(y)
+
+        xAvoid = x/139 + self.pos_lat
+        yAvoid = y/111 + self.pos_lon
         zAvoid = 15
         print("avoidance WP = (%s"%xAvoid,", %s"%yAvoid,", %s)"%zAvoid)
         print("go to avoidance waypoint")
