@@ -495,9 +495,9 @@ class Plane():
             timer = 0
 
             collisionPredicted = 0
-            XAvoidTolerance = 30.0# 10.0
-            YAvoidTolerance = 30.0# 10.0
-            ZAvoidTolerance = 30.0# 10.0
+            XAvoidTolerance = 20.0# 10.0
+            YAvoidTolerance = 20.0# 10.0
+            ZAvoidTolerance = 20.0# 10.0
 
             velX = float(self.vx)
             velY = float(self.vy)
@@ -516,27 +516,27 @@ class Plane():
             
             #print("VELOCITY: %s"%self.velocity)  
             
-            print("Vehicle 1 velocity X is: %f m/s" %velX)          
-            print("Vehicle 1 velocity Y is: %f m/s"%velY)
-            print("Vehicle 1 velocity Z is: %f m/s"%velZ)
-            print("Vehicle 1 alt is: %f m" %posZ)
-            print("Vehicle 1 position X: %f km" %posX)
-            print("Vehicle 1 position Y: %f km" %posY)
+            # print("Vehicle 1 velocity X is: %f m/s" %velX)          
+            # print("Vehicle 1 velocity Y is: %f m/s"%velY)
+            # print("Vehicle 1 velocity Z is: %f m/s"%velZ)
+            # print("Vehicle 1 alt is: %f m" %posZ)
+            # print("Vehicle 1 position X: %f km" %posX)
+            # print("Vehicle 1 position Y: %f km" %posY)
             
-            print("Vehicle 2 velocity X is: %f m/s"%v2velX)          
-            print("Vehicle 2 velocity Y is: %f m/s"%v2velY)
-            print("Vehicle 2 velocity Z is: %f m/s"%v2velZ)
-            print("Vehicle 2 alt is: %f m" %v2posZ)
-            print("Vehicle 2 position X: %f km" %v2posX)
-            print("Vehicle 2 position Y: %f km" %v2posY)
+            # print("Vehicle 2 velocity X is: %f m/s"%v2velX)          
+            # print("Vehicle 2 velocity Y is: %f m/s"%v2velY)
+            # print("Vehicle 2 velocity Z is: %f m/s"%v2velZ)
+            # print("Vehicle 2 alt is: %f m" %v2posZ)
+            # print("Vehicle 2 position X: %f km" %v2posX)
+            # print("Vehicle 2 position Y: %f km" %v2posY)
             
-            #vehicle_1.instructerInfo(self)
-            #print("Vehicle 1 velocity X is: %f m/s"%velX)
-            print("Vehicle 1 position X: %f km" %posX)
-            print("Vehicle 1 position Y: %f km" %posY)
-            #print("Vehicle 2 velocity X is: %f m/s"%v2velX)
-            print("Vehicle 2 position X: %f km" %v2posX)
-            print("Vehicle 2 position Y: %f km" %v2posY)
+            # #vehicle_1.instructerInfo(self)
+            # #print("Vehicle 1 velocity X is: %f m/s"%velX)
+            # print("Vehicle 1 position X: %f km" %posX)
+            # print("Vehicle 1 position Y: %f km" %posY)
+            # #print("Vehicle 2 velocity X is: %f m/s"%v2velX)
+            # print("Vehicle 2 position X: %f km" %v2posX)
+            # print("Vehicle 2 position Y: %f km" %v2posY)
             
             
 
@@ -559,7 +559,10 @@ class Plane():
                     print("predicted collision at (%f,"%self.pos_lat, " %f)"%self.pos_lon)
                     print("************************************************************")
                     self.avoid(v2posX, posX, v2posY, posY, posZ)
-    
+                    #collisionPredicted = self.collisionPredictedCompare(collisionPredicted, distX, distY, distZ, XAvoidTolerance, YAvoidTolerance, ZAvoidTolerance)
+                    break
+
+
             time.sleep(5)
 
     def getFutureDistance(self, time, ownPosX, ownVelX, targPosX, targetVelX):
@@ -576,6 +579,8 @@ class Plane():
     def collisionPredictedCompare(self, collisionPredicted, distX, distY, distZ, XAvoidTolerance, YAvoidTolerance, ZAvoidTolerance): 
         if (distX <= XAvoidTolerance and distY <= YAvoidTolerance and distZ <= ZAvoidTolerance):
             collisionPredicted = True
+        else:
+            collisionPredicted = False
         return collisionPredicted
     
     def chooseY(self, ypos, yneg):
@@ -615,8 +620,10 @@ class Plane():
         print(x)
         print(y)
 
-        xAvoid = x/139 + self.pos_lat
-        yAvoid = y/111 + self.pos_lon
+        #xAvoid = abs(x)/139 + self.pos_lat
+        #yAvoid = abs(y)/111 + self.pos_lon
+        xAvoid = (abs(x) + (self.pos_lat * 139)) / 139
+        yAvoid = (abs(y) + (self.pos_lon * 111)) / 111
         zAvoid = 15
         print("avoidance WP = (%s"%xAvoid,", %s"%yAvoid,", %s)"%zAvoid)
         print("go to avoidance waypoint")
