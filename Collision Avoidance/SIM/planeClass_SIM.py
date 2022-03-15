@@ -558,7 +558,7 @@ class Plane():
                     print(" ")
                     print("predicted collision at (%f,"%self.pos_lat, " %f)"%self.pos_lon)
                     print("************************************************************")
-                   # self.avoid(v2posX, posX, v2posY, posY, posZ)
+                    self.avoid(v2posX, posX, v2posY, posY, posZ)
     
             time.sleep(5)
 
@@ -577,6 +577,43 @@ class Plane():
         if (distX <= XAvoidTolerance and distY <= YAvoidTolerance and distZ <= ZAvoidTolerance):
             collisionPredicted = True
         return collisionPredicted
+    
+    def chooseY(self, ypos, yneg):
+        y = ypos
+        if abs(ypos) > abs(yneg):
+            y = ypos
+        else:
+             y = yneg
+        return y
+ 
+    
+    def avoid(self, intruderX, ownX, intruderY, ownY, distZ):
+        h = abs(intruderX - ownX)
+        k = abs(intruderY - ownY)
+        a = 3
+        b = 2
+        d = (a**4)*(k**2) + (a**2)*(b**2)*(h**2)
+        u = ( (b**2)*(h**2) + (a**2)*(k**2) - (a**2)*(b**2) ) / ((b**2)*h)
+        sq = (b**4)*(h**3)*u*d - (u**2)*(b**4)*(h**2)*d + (a**4)*(b**4)*(h**2)*(k**2)*(u**2)
+       #sq = (b**4)*(h**3)*u*d + (u**2)*(b**4)*(h**2)*d + (a**4)*(b**4)*(h**2)*(k**2)*(u**2)
+        n = (a**2)*(b**2)*h*k*u
+        
+        
+        ypos = (sq**(0.5) + n) / d
+        yneg = ( n - (sq**(0.5))) / d
+        y = self.chooseY(ypos, yneg)
+        x = u - ( (y*(a**2)*k) / ((b**2)*h) )
+        #x = ownX
+        #y = ownY
+        #x += 15
+        #y += 15
+        xAvoid = x/139
+        yAvoid = y/111
+        zAvoid = 15
+        print("avoidance WP = (%s"%xAvoid,", %s"%yAvoid,", %s)"%zAvoid)
+        print("go to avoidance waypoint")
+        #wpAvoid = LocationGlobalRelative(xAvoid, yAvoid, zAvoid)
+        #return wpAvoid
 
     def save_to_file(self):
         
