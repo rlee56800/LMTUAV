@@ -65,7 +65,11 @@ class Plane():
 
         self.airspeed           = 0.0       #- [m/s]    airspeed
         self.groundspeed        = 0.0       #- [m/s]    ground speed
-        
+        #self.velocity           = []        #- [cm/s] [vx,vy,vz]
+        self.vx                 = 0.0       #- [m/s]    vx speed
+        self.vy                 = 0.0       #- [m/s]    vy speed
+        self.vz                 = 0.0       #- [m/s]    vz speed
+
         self.pos_lat            = 0.0       #- [deg]    latitude
         self.pos_lon            = 0.0       #- [deg]    longitude
         self.pos_alt_rel        = 0.0       #- [m]      altitude relative to takeoff
@@ -125,6 +129,10 @@ class Plane():
                 self.pos_alt_rel    = message.relative_alt*1e-3
                 self.pos_alt_abs    = message.alt*1e-3
                 self.location_current = LocationGlobalRelative(self.pos_lat, self.pos_lon, self.pos_alt_rel)
+                self.vx             = message.vx*1e-3
+                self.vy             = message.vy*1e-3
+                self.vz             = message.vz*1e-3    
+
                 
                 
             @self.vehicle.on_message('VFR_HUD')
@@ -463,8 +471,16 @@ class Plane():
 
     def prediction(self):
 
-        # X is Longitude and Y is lattitude
-        while True:
+        while not self.is_armed():
+            print("Not Armed, No Predicting")
+            time.sleep(10)
+
+
+        while self.is_armed():
+
+            while not self.receive_msg:
+                pass  
+
             print('***** PREDICTION *****')
             print(self.receive_lattitude)
             print(self.receive_longitude)
@@ -472,33 +488,33 @@ class Plane():
             time.sleep(3)
 
         
-        times = 0        
-        distX = 0
-        distY = 0
-        distZ = 0
-        timer = 0
+            times = 0        
+            distX = 0
+            distY = 0
+            distZ = 0
+            timer = 0
 
-        collisionPredicted = 0
-        XAvoidTolerance = 10.0
-        YAvoidTolerance = 10.0
-        ZAvoidTolerance = 10.0
- 
-        while not vehicle.armed:
-            print("Not Predicting")
-            time.sleep(10)
-        while vehicle.armed:
+            collisionPredicted = 0
+            XAvoidTolerance = 20.0# 10.0
+            YAvoidTolerance = 20.0# 10.0
+            ZAvoidTolerance = 20.0# 10.0
 
-
+<<<<<<< HEAD
             while not self.receive_msg:
                 pass          
 
             velX = float(vehicle.velocity[0])
             velY = float(vehicle.velocity[1])
             velZ = float(vehicle.velocity[2])
+=======
+            velX = float(self.vx)
+            velY = float(self.vy)
+            velZ = float(self.vz)
+>>>>>>> cc1ecce90917ef6615e61d9c1b1f0c7986b386cc
             posX = self.pos_lon * 139
             posY = self.pos_lat * 111
             posZ = self.pos_alt_rel
- 
+
             v2velX = self.receive_velocity[0]
             v2velY = self.receive_velocity[1]
             v2velZ = self.receive_velocity[2]
@@ -507,41 +523,40 @@ class Plane():
             v2posZ = self.receive_altitude
             
             
-            print("VELOCITY: %s"%vehicle.velocity)  
+            #print("VELOCITY: %s"%self.velocity)  
             
-            print("Vehicle 1 velocity X is: %f m/s"%velX)          
-            print("Vehicle 1 velocity Y is: %f m/s"%velY)
-            print("Vehicle 1 velocity Z is: %f m/s"%velZ)
-            print("Vehicle 1 alt is: %f m" %posZ)
-            print("Vehicle 1 position X: %f km" %posX)
-            print("Vehicle 1 position Y: %f km" %posY)
+            # print("Vehicle 1 velocity X is: %f m/s" %velX)          
+            # print("Vehicle 1 velocity Y is: %f m/s"%velY)
+            # print("Vehicle 1 velocity Z is: %f m/s"%velZ)
+            # print("Vehicle 1 alt is: %f m" %posZ)
+            # print("Vehicle 1 position X: %f km" %posX)
+            # print("Vehicle 1 position Y: %f km" %posY)
             
-            print("Vehicle 2 velocity X is: %f m/s"%v2velX)          
-            print("Vehicle 2 velocity Y is: %f m/s"%v2velY)
-            print("Vehicle 2 velocity Z is: %f m/s"%v2velZ)
-            print("Vehicle 2 alt is: %f m" %v2posZ)
-            print("Vehicle 2 position X: %f km" %v2posX)
-            print("Vehicle 2 position Y: %f km" %v2posY)
+            # print("Vehicle 2 velocity X is: %f m/s"%v2velX)          
+            # print("Vehicle 2 velocity Y is: %f m/s"%v2velY)
+            # print("Vehicle 2 velocity Z is: %f m/s"%v2velZ)
+            # print("Vehicle 2 alt is: %f m" %v2posZ)
+            # print("Vehicle 2 position X: %f km" %v2posX)
+            # print("Vehicle 2 position Y: %f km" %v2posY)
             
-            #vehicle_1.instructerInfo(self)
-            #print("Vehicle 1 velocity X is: %f m/s"%velX)
-            print("Vehicle 1 position X: %f km" %posX)
-            print("Vehicle 1 position Y: %f km" %posY)
-            #print("Vehicle 2 velocity X is: %f m/s"%v2velX)
-            print("Vehicle 2 position X: %f km" %v2posX)
-            print("Vehicle 2 position Y: %f km" %v2posY)
+            # #vehicle_1.instructerInfo(self)
+            # #print("Vehicle 1 velocity X is: %f m/s"%velX)
+            # print("Vehicle 1 position X: %f km" %posX)
+            # print("Vehicle 1 position Y: %f km" %posY)
+            # #print("Vehicle 2 velocity X is: %f m/s"%v2velX)
+            # print("Vehicle 2 position X: %f km" %v2posX)
+            # print("Vehicle 2 position Y: %f km" %v2posY)
             
             
- 
-            timestep = 1
- 
-            for i in range (10):
-                distX = self.getFutureDistanceY(timestep, posX, velX, v2posX, v2velX)
-                print("    X distance is %s m"%distX, " in %s seconds"%timestep)
-                distY = self.getFutureDistanceX(timestep, posY, velY, v2posY, v2velY)
-                print("    Y distance is %s m"%distY, " in %s seconds"%timestep)        
 
-                distZ = self.getFutureDistanceZ(timestep, posZ, velZ, v2posZ, v2velZ)
+            timestep = 1
+
+            for i in range (10):
+                distX = self.getFutureDistance(timestep, posX, velX, v2posX, v2velX)
+                print("    X distance is %s m"%distX, " in %s seconds"%timestep)
+                distY = self.getFutureDistance(timestep, posY, velY, v2posY, v2velY)
+                print("    Y distance is %s m"%distY, " in %s seconds"%timestep)        
+                distZ = self.getFutureDistance(timestep, posZ, velZ, v2posZ, v2velZ)
                 #print("    Z distance is %s m"%distZ, " in %s seconds"%timestep)
                 times = times + 0.01
                 timestep = timestep + 0.5
@@ -550,12 +565,79 @@ class Plane():
                     print("************************************************************")
                     print("                  Predicted Collision")
                     print(" ")
-                    print("predicted collision at (%f,"%vehicle.location.global_relative_frame.lat, " %f)"%vehicle.location.global_relative_frame.lon)
+                    print("predicted collision at (%f,"%self.pos_lat, " %f)"%self.pos_lon)
                     print("************************************************************")
                     self.avoid(v2posX, posX, v2posY, posY, posZ)
- 
+                    #collisionPredicted = self.collisionPredictedCompare(collisionPredicted, distX, distY, distZ, XAvoidTolerance, YAvoidTolerance, ZAvoidTolerance)
+                    break
+
+
             time.sleep(5)
 
+    def getFutureDistance(self, time, ownPosX, ownVelX, targPosX, targetVelX):
+        futureTargPosX = targPosX + targetVelX * time
+        futureOwnPosX = ownPosX + ownVelX * time
+        return abs(futureOwnPosX - futureTargPosX)
+
+    def getFuturePosition(self, PosX,VelX,time):
+        futurePosX = PosX*1000 + VelX * time
+        #futurePosY = PosY*1000 + VelY * time
+        #futurePosZ = PosZ + VelZ * time
+        return futurePosX
+
+    def collisionPredictedCompare(self, collisionPredicted, distX, distY, distZ, XAvoidTolerance, YAvoidTolerance, ZAvoidTolerance): 
+        if (distX <= XAvoidTolerance and distY <= YAvoidTolerance and distZ <= ZAvoidTolerance):
+            collisionPredicted = True
+        else:
+            collisionPredicted = False
+        return collisionPredicted
+    
+    def chooseY(self, ypos, yneg):
+        y = ypos
+        if abs(ypos) > abs(yneg):
+            y = ypos
+        else:
+             y = yneg
+        return y
+ 
+    
+    def avoid(self, intruderX, ownX, intruderY, ownY, distZ):
+        h = abs(abs(intruderX) - abs(ownX))
+        k = abs(abs(intruderY) - abs(ownY))
+        a = 3
+        b = 2
+        d = (a**4)*(k**2) + (a**2)*(b**2)*(h**2)
+        u = ( (b**2)*(h**2) + (a**2)*(k**2) - (a**2)*(b**2) ) / ((b**2)*h)
+        sq = (b**4)*(h**3)*u*d - (u**2)*(b**4)*(h**2)*d + (a**4)*(b**4)*(h**2)*(k**2)*(u**2)
+       #sq = (b**4)*(h**3)*u*d + (u**2)*(b**4)*(h**2)*d + (a**4)*(b**4)*(h**2)*(k**2)*(u**2)
+        n = (a**2)*(b**2)*h*k*u
+        
+        
+        ypos = (sq**(0.5) + n) / d
+        yneg = ( n - (sq**(0.5))) / d
+        y = self.chooseY(ypos, yneg)
+        x = u - ( (y*(a**2)*k) / ((b**2)*h) )
+        #x = ownX
+        #y = ownY
+        #x += 15
+        #y += 15
+        print('~~~~~ LON LAT ~~~~~')
+        print(self.pos_lat)
+        print(self.pos_lon)
+
+        print('~~~~~ X Y VALUES ~~~~~')
+        print(x)
+        print(y)
+
+        #xAvoid = abs(x)/139 + self.pos_lat
+        #yAvoid = abs(y)/111 + self.pos_lon
+        xAvoid = (abs(x) + (self.pos_lat * 139)) / 139
+        yAvoid = (abs(y) + (self.pos_lon * 111)) / 111
+        zAvoid = 15
+        print("avoidance WP = (%s"%xAvoid,", %s"%yAvoid,", %s)"%zAvoid)
+        print("go to avoidance waypoint")
+        #wpAvoid = LocationGlobalRelative(xAvoid, yAvoid, zAvoid)
+        #return wpAvoid
 
     def save_to_file(self):
         
@@ -608,12 +690,6 @@ class Plane():
 
         f.close()
 
-    def getFuturePosition(self, PosX,VelX,time):
-        futurePosX = PosX*1000 + VelX * time
-        #futurePosY = PosY*1000 + VelY * time
-        #futurePosZ = PosZ + VelZ * time
-        return futurePosX
-
     def send_ADSB_data(self):
         
         print("In send ADSB funtion\n")
@@ -636,7 +712,7 @@ class Plane():
     def receive_ADSB_data(self):
         while True:    
             print("In receive_ADSB_data function")
-            msg = ser.read().decode()
+            msg = ser.readline().decode()
             print(msg)
 
             while not msg:
@@ -645,8 +721,8 @@ class Plane():
                 msg = ser.readline().decode()
                 print(msg)
 
-            #print("msg!!!!!!!!!!!!\n")
-            #print(msg)
+            print("msg!!!!!!!!!!!!\n")
+            print(msg)
 
 
             self.receive_msg = True
@@ -671,7 +747,7 @@ class Plane():
             print(self.receive_velocity)
             # Variable Saving end
 
-            time.sleep(0.1)
+            time.sleep(1)
 
 
 

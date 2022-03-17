@@ -9,7 +9,8 @@ textbox_width = 70
 graph_name = StringVar(master)
 file_name = StringVar(master)
 predicted_indices = StringVar(master)
-
+map_intruder = IntVar(master)
+# https://www.geeksforgeeks.org/python-tkinter-checkbutton-widget/
 
 ########## FUNCTIONS ########## 
 def enter_info():
@@ -26,7 +27,7 @@ def enter_info():
         pi_list = []
 
     try:
-        UAV.main(graph_name.get(), file_name.get(), pi_list)
+        UAV.main(graph_name.get(), file_name.get(), map_intruder.get(), pi_list)
     except FileNotFoundError:
         show_error('Please enter a VALID file name', '(including parent folder and .txt on the end and excluding quotation marks)')
     except IndexError:
@@ -52,11 +53,17 @@ e_file = Entry(master, width=textbox_width, textvariable=file_name)
 e_file.grid(column=1, row=2, padx=5, pady=5)
 
 # predicted_indices: list[int]
-Label(master, text = 'Index of Point(s) Showing Predicted Path (separate with spaces):').grid(column=0, row=3, padx=5, pady=5)
+Label(master, text = 'Index of Point(s) Showing Predicted Path:\n(separate with spaces)').grid(column=0, row=3, padx=5, pady=5)
 e_indices = Entry(master, width=textbox_width, textvariable=predicted_indices)
 e_indices.grid(column=1, row=3, padx=5, pady=5)
 
-confirm = Button(master, text='Create Graph', command=enter_info).grid(column = 0, row=4)
+# map_intruder: bool
+# checkbox for whether or not intruder is mapped
+e_intruder = Checkbutton(master, text = 'Map intruder vehicle?', variable = map_intruder, onvalue=1, offvalue=0)
+e_intruder.grid(column=0, row=4, padx=5, pady=5)
+
+# confirmation button
+confirm = Button(master, text='Create Graph', command=enter_info).grid(column = 0, row=5)
 
 
 master.mainloop()
