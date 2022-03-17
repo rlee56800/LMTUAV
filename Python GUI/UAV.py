@@ -1,51 +1,19 @@
 import matplotlib.pyplot as plt
 
-
-# ########## CHANGE FILE NAME HERE ##########
-# name = 'Python GUI/Log Outputs 2021_12_24/log_output_2021_12_24 (1).txt'
-# title = 'Flight Graph: 12/24/21 Simulation 1'
-
-# longitude = []
-# lattitude = []
-
-# with open(name) as file:
-#     for line in file:
-
-#         if 'Current lattitude' in line:
-#             i = line.split()
-#             i = float(i[6])
-#             lattitude.append(i)
-#         elif 'Current longitude' in line:
-#             i = line.split()
-#             i = float(i[6])
-#             longitude.append(i)
-
-
-# #print("{}\n\n{} ".format(longitude, lattitude))
-
-
-# plt.scatter(lattitude, longitude)
-# plt.plot(lattitude, longitude)
-
-# plt.title(title)
-# plt.xlabel('Latitude')
-# plt.ylabel('Longitude')
-
-# plt.show()
-
-
 ########## CHANGE FILE NAME HERE ##########
+# This is placeholder data/allows program to be run without GUI
 title_of_graph = 'Flight Graph: 12/24/21 Simulation 3'
-name_of_file = 'Python GUI/Log Outputs 2021_12_24/log_output_2021_12_24 (3).txt'
+name_of_file = 'Python GUI/Log Outputs 2021_12_24/log_output_2022_03_08.txt'
 ## NOTE: check if file has completed time stamps (i.e. has both future x AND y pos)
-show_predicted = [0, 10, 20, 30] # index/indices of value to show predicted values
+show_predicted = [] # index/indices of value to show predicted values
+show_intruder = 0
 
 def splitter(input_str: str, index: int):
     i = input_str.split()
     i = i[index]
     return float(i)
 
-def main(graph_name: str, file_name: str, predicted_indices = []):
+def main(graph_name: str, file_name: str, map_intruder: int, predicted_indices = []):
     ########## Graphing ##########
     longitude = []
     lattitude = []
@@ -54,8 +22,8 @@ def main(graph_name: str, file_name: str, predicted_indices = []):
     x = []
     y = []
 
-    # intruder_longitude = []
-    # intruder_lattitude = []
+    intruder_longitude = []
+    intruder_lattitude = []
 
     with open(file_name) as file:
         for line in file:
@@ -63,14 +31,10 @@ def main(graph_name: str, file_name: str, predicted_indices = []):
                 lattitude.append(splitter(line, 6))
             elif 'Current longitude' in line:
                 longitude.append(splitter(line, 6))
-            # elif 'Intruder lattitude' in line:
-            #     i = line.split()
-            #     i = i[6]
-            #     intruder_lattitude.append(splitter(line, 6))
-            # elif 'Intruder longitude' in line:
-            #     i = line.split()
-            #     i = i[6]
-            #     intruder_longitude.append(splitter(line, 6))
+            elif map_intruder and 'Intruder lattitude' in line:
+                intruder_lattitude.append(splitter(line, 6))
+            elif map_intruder and 'Intruder longitude' in line:
+                intruder_longitude.append(splitter(line, 6))
             elif '~~~~~~~~~~New Point~~~~~~~~~~~~' in line:
                 # future_pos are lists of future positions from each point
                 # New Point means all 10 futurePos points have been printed
@@ -95,8 +59,15 @@ def main(graph_name: str, file_name: str, predicted_indices = []):
             #plt.scatter(future_pos_x[i], future_pos_y[i]) # scatter plot dots
             plt.plot(future_pos_x[i], future_pos_y[i]) # line
 
-    plt.scatter(lattitude, longitude, color='black') # Creates scatter plot (dots)
-    plt.plot(lattitude, longitude, color='black') # Creates line
+    # for current vehicle
+    plt.scatter(lattitude[1:], longitude[1:], color='black') # Creates scatter plot (dots)
+    plt.plot(lattitude[1:], longitude[1:], color='black') # Creates line
+
+    # for intruder vehicle
+    if map_intruder:
+        plt.scatter(intruder_lattitude, intruder_longitude, color='red') # Creates scatter plot (dots)
+        plt.plot(intruder_lattitude, intruder_longitude, color='red') # Creates line
+        # throw error if either are empty
 
     plt.ticklabel_format(useOffset=False) # Display axes correctly
 
@@ -108,4 +79,4 @@ def main(graph_name: str, file_name: str, predicted_indices = []):
 
 
 if __name__ == '__main__':
-    main(title_of_graph, name_of_file, show_predicted)
+    main(title_of_graph, name_of_file, show_intruder, show_predicted)
