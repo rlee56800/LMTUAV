@@ -491,7 +491,7 @@ class Plane():
 
             while not self.receive_msg:
                 pass          
-            
+
             velX = float(vehicle.velocity[0])
             velY = float(vehicle.velocity[1])
             velZ = float(vehicle.velocity[2])
@@ -680,9 +680,9 @@ class Plane():
         t1 = threading.Thread(target=self.save_to_file, daemon=True)
         t2 = threading.Thread(target=self.send_ADSB_data, daemon=True)
         t3 = threading.Thread(target=self.receive_ADSB_data, daemon=True)
-        #t4 = threading.Thread(target=self.prediction, daemon=True)
+        t4 = threading.Thread(target=self.prediction, daemon=True)
 
         t1.start()
         t2.start()
         t3.start()
-        #t4.start()
+        t4.start()
