@@ -27,7 +27,7 @@ import serial
 
 ser = serial.Serial(
     
-    port='COM4',
+    port='COM5',
     baudrate = 9600,
     parity=serial.PARITY_NONE,
     stopbits=serial.STOPBITS_ONE,
@@ -495,22 +495,13 @@ class Plane():
             timer = 0
 
             collisionPredicted = 0
-            XAvoidTolerance = 20.0# 10.0
-            YAvoidTolerance = 20.0# 10.0
-            ZAvoidTolerance = 20.0# 10.0
+            XAvoidTolerance = 22.0# 10.0
+            YAvoidTolerance = 22.0# 10.0
+            ZAvoidTolerance = 22.0# 10.0
 
-<<<<<<< HEAD
-            while not self.receive_msg:
-                pass          
-
-            velX = float(vehicle.velocity[0])
-            velY = float(vehicle.velocity[1])
-            velZ = float(vehicle.velocity[2])
-=======
             velX = float(self.vx)
             velY = float(self.vy)
             velZ = float(self.vz)
->>>>>>> cc1ecce90917ef6615e61d9c1b1f0c7986b386cc
             posX = self.pos_lon * 139
             posY = self.pos_lat * 111
             posZ = self.pos_alt_rel
@@ -586,7 +577,9 @@ class Plane():
         return futurePosX
 
     def collisionPredictedCompare(self, collisionPredicted, distX, distY, distZ, XAvoidTolerance, YAvoidTolerance, ZAvoidTolerance): 
-        if (distX <= XAvoidTolerance and distY <= YAvoidTolerance and distZ <= ZAvoidTolerance):
+        pp_dist = ((distX**2) + (distY**2) + (distZ**2))**(1/2) #point to point distance
+        #if (distX <= XAvoidTolerance and distY <= YAvoidTolerance and distZ <= ZAvoidTolerance):
+        if pp_dist < XAvoidTolerance: # all tolerance are the same value
             collisionPredicted = True
         else:
             collisionPredicted = False
