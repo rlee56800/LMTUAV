@@ -495,6 +495,7 @@ class Plane():
             timer = 0
 
             collisionPredicted = 0
+
             XAvoidTolerance = 25.0# 10.0
             YAvoidTolerance = 40.0# 10.0
             ZAvoidTolerance = 40.0# 10.0
