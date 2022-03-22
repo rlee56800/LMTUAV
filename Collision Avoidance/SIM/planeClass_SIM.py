@@ -27,7 +27,7 @@ import serial
 
 ser = serial.Serial(
     
-    port='COM5',
+    port='COM7',
     baudrate = 9600,
     parity=serial.PARITY_NONE,
     stopbits=serial.STOPBITS_ONE,
@@ -495,9 +495,9 @@ class Plane():
             timer = 0
 
             collisionPredicted = 0
-            XAvoidTolerance = 22.0# 10.0
-            YAvoidTolerance = 22.0# 10.0
-            ZAvoidTolerance = 22.0# 10.0
+            XAvoidTolerance = 25.0# 10.0
+            YAvoidTolerance = 40.0# 10.0
+            ZAvoidTolerance = 40.0# 10.0
 
             velX = float(self.vx)
             velY = float(self.vy)
@@ -561,13 +561,18 @@ class Plane():
                     self.avoid(v2posX, posX, v2posY, posY, posZ)
                     #collisionPredicted = self.collisionPredictedCompare(collisionPredicted, distX, distY, distZ, XAvoidTolerance, YAvoidTolerance, ZAvoidTolerance)
                     break
+                else: # TESTING ONLY; REMOVE LATER PLS
+                    print("************************************************************")
+                    print("                 No Predicted Collision")
+                    print("************************************************************")
+
 
 
             time.sleep(5)
 
     def getFutureDistance(self, time, ownPosX, ownVelX, targPosX, targetVelX):
-        futureTargPosX = targPosX + targetVelX * time
-        futureOwnPosX = ownPosX + ownVelX * time
+        futureTargPosX = targPosX + (targetVelX * time)
+        futureOwnPosX = ownPosX + (ownVelX * time)
         return abs(futureOwnPosX - futureTargPosX)
 
     def getFuturePosition(self, PosX,VelX,time):
@@ -577,13 +582,32 @@ class Plane():
         return futurePosX
 
     def collisionPredictedCompare(self, collisionPredicted, distX, distY, distZ, XAvoidTolerance, YAvoidTolerance, ZAvoidTolerance): 
-        pp_dist = ((distX**2) + (distY**2) + (distZ**2))**(1/2) #point to point distance
-        #if (distX <= XAvoidTolerance and distY <= YAvoidTolerance and distZ <= ZAvoidTolerance):
-        if pp_dist < XAvoidTolerance: # all tolerance are the same value
-            collisionPredicted = True
-        else:
-            collisionPredicted = False
-        return collisionPredicted
+        # pp_dist = ((distX**2) + (distY**2) + (distZ**2))**(1/2) #point to point distance
+        # #if (distX <= XAvoidTolerance and distY <= YAvoidTolerance and distZ <= ZAvoidTolerance):
+        # if pp_dist < XAvoidTolerance: # all tolerance are the same value
+        #     collisionPredicted = True
+        # else:
+        #     collisionPredicted = False
+        # return collisionPredicted
+
+        dlat = distX# * 1.113195e5 ### conversion to degrees of longitude; 111,319.5 m per degree
+        dlong = distY# * 1.113195e5
+        ### if this doesn't work, try calculating distX in here
+ 
+        # R_mag = mag([dlat, dlong]) ### calculates magnitude of NED vector and compares to separation distance 
+        # print(R_mag)
+        #square = [abs(x**2) for x in [dlat, dlong]]
+        #sumInside = sum(square)
+        #tot_sum = abs(dlat**2) + abs(dlong**2)
+        #magnitude = [ math.sqrt(tot_sum) ]
+
+        magnitude = math.sqrt(abs(dlat**2) + abs(dlong**2))
+        ### logic (what to do if ...)
+        print("\n=============================================")
+        print('distX = %f' %distX)
+        print('distY = %f' %distY)
+        print('Magnitude %f\n'%magnitude)
+        return magnitude <= XAvoidTolerance
     
     def chooseY(self, ypos, yneg):
         y = ypos
