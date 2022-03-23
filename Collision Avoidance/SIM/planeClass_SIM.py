@@ -494,7 +494,7 @@ class Plane():
             distZ = 0
             timer = 0
 
-            collisionPredicted = 0
+            collisionPredicted = False
 
             XAvoidTolerance = 25.0# 10.0
             YAvoidTolerance = 40.0# 10.0
@@ -552,7 +552,8 @@ class Plane():
                 #print("    Z distance is %s m"%distZ, " in %s seconds"%timestep)
                 times = times + 0.01
                 timestep = timestep + 0.5
-                collisionPredicted = self.collisionPredictedCompare(collisionPredicted, distX, distY, distZ, XAvoidTolerance, YAvoidTolerance, ZAvoidTolerance)
+                #collisionPredicted = self.collisionPredictedCompare(collisionPredicted, distX, distY, distZ, XAvoidTolerance, YAvoidTolerance, ZAvoidTolerance)
+                collisionPredicted = self.collisionPredictedCompare(distX, distY, XAvoidTolerance)
                 if collisionPredicted:
                     print("************************************************************")
                     print("                  Predicted Collision")
@@ -582,7 +583,8 @@ class Plane():
         #futurePosZ = PosZ + VelZ * time
         return futurePosX
 
-    def collisionPredictedCompare(self, collisionPredicted, distX, distY, distZ, XAvoidTolerance, YAvoidTolerance, ZAvoidTolerance): 
+    #def collisionPredictedCompare(self, collisionPredicted, distX, distY, distZ, XAvoidTolerance, YAvoidTolerance, ZAvoidTolerance):
+    def collisionPredictedCompare(self, distX, distY, XAvoidTolerance):  
         # pp_dist = ((distX**2) + (distY**2) + (distZ**2))**(1/2) #point to point distance
         # #if (distX <= XAvoidTolerance and distY <= YAvoidTolerance and distZ <= ZAvoidTolerance):
         # if pp_dist < XAvoidTolerance: # all tolerance are the same value
@@ -591,9 +593,9 @@ class Plane():
         #     collisionPredicted = False
         # return collisionPredicted
 
-        dlat = distX# * 1.113195e5 ### conversion to degrees of longitude; 111,319.5 m per degree
-        dlong = distY# * 1.113195e5
-        ### if this doesn't work, try calculating distX in here
+        # dlat = distX# * 1.113195e5 ### conversion to degrees of longitude; 111,319.5 m per degree
+        # dlong = distY# * 1.113195e5
+        # ### if this doesn't work, try calculating distX in here
  
         # R_mag = mag([dlat, dlong]) ### calculates magnitude of NED vector and compares to separation distance 
         # print(R_mag)
@@ -602,12 +604,12 @@ class Plane():
         #tot_sum = abs(dlat**2) + abs(dlong**2)
         #magnitude = [ math.sqrt(tot_sum) ]
 
-        magnitude = math.sqrt(abs(dlat**2) + abs(dlong**2))
-        ### logic (what to do if ...)
-        print("\n=============================================")
-        print('distX = %f' %distX)
-        print('distY = %f' %distY)
-        print('Magnitude %f\n'%magnitude)
+        magnitude = math.sqrt(abs(distX**2) + abs(distY**2))
+        # ### logic (what to do if ...)
+        # print("\n=============================================")
+        # print('distX = %f' %distX)
+        # print('distY = %f' %distY)
+        # print('Magnitude %f\n'%magnitude)
         return magnitude <= XAvoidTolerance
     
     def chooseY(self, ypos, yneg):
