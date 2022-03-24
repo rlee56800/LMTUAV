@@ -28,13 +28,21 @@ def main(graph_name: str, file_name: str, map_intruder: int, predicted_indices =
     with open(file_name) as file:
         for line in file:
             if 'Current lattitude' in line:
-                lattitude.append(splitter(line, 6))
+                cur = splitter(line, 6)
+                if cur != 0:
+                    lattitude.append(cur)
             elif 'Current longitude' in line:
-                longitude.append(splitter(line, 6))
+                cur = splitter(line, 6)
+                if cur != 0:
+                    longitude.append(cur)
             elif map_intruder and 'Intruder lattitude' in line:
-                intruder_lattitude.append(splitter(line, 6))
+                cur = splitter(line, 6)
+                if cur != 0:
+                    intruder_lattitude.append(cur)
             elif map_intruder and 'Intruder longitude' in line:
-                intruder_longitude.append(splitter(line, 6))
+                cur = splitter(line, 6)
+                if cur != 0:
+                    intruder_longitude.append(cur)
             elif '~~~~~~~~~~New Point~~~~~~~~~~~~' in line:
                 # future_pos are lists of future positions from each point
                 # New Point means all 10 futurePos points have been printed
@@ -65,6 +73,7 @@ def main(graph_name: str, file_name: str, map_intruder: int, predicted_indices =
 
     # for intruder vehicle
     if map_intruder:
+        print(len(intruder_lattitude), len(intruder_longitude))
         plt.scatter(intruder_lattitude, intruder_longitude, color='red') # Creates scatter plot (dots)
         plt.plot(intruder_lattitude, intruder_longitude, color='red') # Creates line
         # throw error if either are empty
