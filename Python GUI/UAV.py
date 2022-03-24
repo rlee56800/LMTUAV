@@ -68,15 +68,24 @@ def main(graph_name: str, file_name: str, map_intruder: int, predicted_indices =
             plt.plot(future_pos_x[i], future_pos_y[i]) # line
 
     # for current vehicle
-    plt.scatter(lattitude[1:], longitude[1:], color='black') # Creates scatter plot (dots)
+    #plt.scatter(lattitude[1:], longitude[1:], color='black') # Creates scatter plot (dots)
     plt.plot(lattitude[1:], longitude[1:], color='black') # Creates line
 
     # for intruder vehicle
     if map_intruder:
         print(len(intruder_lattitude), len(intruder_longitude))
-        plt.scatter(intruder_lattitude, intruder_longitude, color='red') # Creates scatter plot (dots)
+        #plt.scatter(intruder_lattitude, intruder_longitude, color='red') # Creates scatter plot (dots)
         plt.plot(intruder_lattitude, intruder_longitude, color='red') # Creates line
         # throw error if either are empty
+
+    # # just for testing
+    # # green = no prediction
+    # plt.scatter(34.045160, -117.793790, color = 'green')
+    # plt.scatter(34.043767, -117.826990, color = 'green')
+
+    # # purple = prediction
+    # plt.scatter(34.045819, -117.792054, color = 'purple')
+    # plt.scatter(34.043966, -117.828104, color = 'purple')
 
     plt.ticklabel_format(useOffset=False) # Display axes correctly
 
