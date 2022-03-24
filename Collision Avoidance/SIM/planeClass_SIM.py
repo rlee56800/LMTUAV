@@ -27,7 +27,7 @@ import serial
 
 ser = serial.Serial(
     
-    port='COM7',
+    port='COM5',
     baudrate = 9600,
     parity=serial.PARITY_NONE,
     stopbits=serial.STOPBITS_ONE,
@@ -557,6 +557,8 @@ class Plane():
                 if collisionPredicted:
                     print("************************************************************")
                     print("                  Predicted Collision")
+                    # print("self position: [%f, %f]"%(posX/139, posY/111))
+                    # print("intruder position: [%f, %f]"%(v2posX/139, v2posY/111))
                     print(" ")
                     print("predicted collision at (%f,"%self.pos_lat, " %f)"%self.pos_lon)
                     print("************************************************************")
@@ -566,6 +568,8 @@ class Plane():
                 else: # TESTING ONLY; REMOVE LATER PLS
                     print("************************************************************")
                     print("                 No Predicted Collision")
+                    # print("self position: [%f, %f]"%(posX, posY))
+                    # print("intruder position: [%f, %f]"%(v2posX, v2posY))
                     print("************************************************************")
 
 
@@ -604,13 +608,27 @@ class Plane():
         #tot_sum = abs(dlat**2) + abs(dlong**2)
         #magnitude = [ math.sqrt(tot_sum) ]
 
-        magnitude = math.sqrt(abs(distX**2) + abs(distY**2))
+        #magnitude = math.sqrt(abs(distX**2) + abs(distY**2))
         # ### logic (what to do if ...)
         # print("\n=============================================")
         # print('distX = %f' %distX)
         # print('distY = %f' %distY)
         # print('Magnitude %f\n'%magnitude)
-        return magnitude <= XAvoidTolerance
+       # return magnitude <= XAvoidTolerance
+
+        # thank you stack overflow
+        # https://stackoverflow.com/questions/2931573/determining-if-two-rays-intersect
+        dx = self.receive_lattitude - self.pos_lat
+        dy = self.receive_longitude - self.pos_lon
+        det = self.receive_velocity[0] * self.vy - self.receive_velocity[1] * self.vx
+        u = (dy * self.receive_velocity[0] - dx * self.receive_velocity[1]) / det
+        v = (dy * self.vx - dx * self.vy) / det
+
+        if u >= 0 and v >= 0:
+           return True
+        else:
+            return False
+
     
     def chooseY(self, ypos, yneg):
         y = ypos
