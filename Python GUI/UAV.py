@@ -62,36 +62,36 @@ def main(graph_name: str, file_name: str, map_intruder: int, predicted_indices =
 
     plt.figure(figsize=(10, 7)) # Window size
 
-    if predicted_indices:
-        for i in predicted_indices: # predictive paths; comment out for less hairy graph
-            #plt.scatter(future_pos_x[i], future_pos_y[i]) # scatter plot dots
-            plt.plot(future_pos_x[i], future_pos_y[i]) # line
 
     # for current vehicle
     #plt.scatter(lattitude[1:], longitude[1:], color='black') # Creates scatter plot (dots)
-    plt.plot(lattitude[1:], longitude[1:], color='black') # Creates line
+    plt.plot(longitude[1:], lattitude[1:], color='black') # Creates line
 
     # for intruder vehicle
     if map_intruder:
-        print(len(intruder_lattitude), len(intruder_longitude))
+        #print(len(intruder_lattitude), len(intruder_longitude))
         #plt.scatter(intruder_lattitude, intruder_longitude, color='red') # Creates scatter plot (dots)
-        plt.plot(intruder_lattitude, intruder_longitude, color='red') # Creates line
+        plt.plot(intruder_longitude, intruder_lattitude, color='red') # Creates line
         # throw error if either are empty
 
     # # just for testing
     # # green = no prediction
-    # plt.scatter(34.045160, -117.793790, color = 'green')
-    # plt.scatter(34.043767, -117.826990, color = 'green')
+    plt.scatter(-117.811314, 34.045759, color = 'green')
+    plt.scatter(-117.818760, 34.040269, color = 'purple')
 
     # # purple = prediction
     # plt.scatter(34.045819, -117.792054, color = 'purple')
     # plt.scatter(34.043966, -117.828104, color = 'purple')
+    if predicted_indices:
+        for i in predicted_indices: # predictive paths; comment out for less hairy graph
+            #plt.scatter(future_pos_x[i], future_pos_y[i]) # scatter plot dots
+            plt.plot(future_pos_y[i], future_pos_x[i]) # line
 
     plt.ticklabel_format(useOffset=False) # Display axes correctly
 
     plt.title(graph_name)
-    plt.xlabel('Latitude')
-    plt.ylabel('Longitude')
+    plt.ylabel('Latitude')
+    plt.xlabel('Longitude')
 
     plt.show()
 
