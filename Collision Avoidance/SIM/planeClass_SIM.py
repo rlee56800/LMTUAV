@@ -624,10 +624,26 @@ class Plane():
         u = (dy * self.receive_velocity[0] - dx * self.receive_velocity[1]) / det
         v = (dy * self.vx - dx * self.vy) / det
 
+        # intersection equations p = [self current position] + [self current velocity] * u
+        #                        p = [intr current position] + [intr current velocity] * v
+        # if u and v are positive, point of intersection is in front of both
         if u >= 0 and v >= 0:
-           return True
-        else:
-            return False
+            crash_lat = self.pos_lat + self.vx * u # no particular reason to use this over the other
+            crash_lon = self.pos_lon + self.vy * u
+
+            # distance formula: sqrt( (x2-x1)^2 + (y2-y1)^2 )
+            #                   ( (  ((x2-x1)**2) + ((y2-y1)**2)  )**(1/2) )
+            dist_self = ( (((crash_lat-self.pos_lat)**2) + ((crash_lon-self.pos_lat)**2))**(1/2) ) # distance collision is from self
+            dist_intr = ( (((crash_lat-self.receive_lattitude)**2) + ((crash_lon-self.receive_longitude)**2))**(1/2) ) # distance collision is from intruder
+
+            print("\n $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ ")
+            print('dist_self = %f'%dist_self)
+            print('dist_intr = %f'%dist_intr)
+            print("crash at: [%f, %f]"%(crash_lat, crash_lon))
+            # if the point closer to the predicted collision is within the tolerance
+            if min(dist_self, dist_intr) <= XAvoidTolerance:
+                return True
+        return False
 
     
     def chooseY(self, ypos, yneg):
