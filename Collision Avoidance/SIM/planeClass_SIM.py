@@ -557,12 +557,27 @@ class Plane():
                 if collisionPredicted:
                     print("************************************************************")
                     print("                  Predicted Collision")
-                    # print("self position: [%f, %f]"%(posX/139, posY/111))
-                    # print("intruder position: [%f, %f]"%(v2posX/139, v2posY/111))
+                    print("self position: [%f, %f]"%(posX/139, posY/111))
+                    print("intruder position: [%f, %f]"%(v2posX/139, v2posY/111))
                     print(" ")
                     print("predicted collision at (%f,"%self.pos_lat, " %f)"%self.pos_lon)
                     print("************************************************************")
-                    self.avoid(v2posX, posX, v2posY, posY, posZ)
+                    avoidance_point = self.avoid(v2posX, posX, v2posY, posY, posZ)
+
+
+                    # head to avoidance waypoint
+                    # self.mission.clear()
+                    self.ap_mode = VehicleMode('GUIDE')
+                    self.vehicle.simple_goto(LocationGlobalRelative(34.052927, -117.811349, 0))
+                    #self.insert_avoidWP(self.current_WP_number(), avoidance_point)
+                    print('__________________going to avoid__________________')
+
+                    # while collision predicted:
+                    #   go to self.avoid (((self.avoid returns avoidance waypoint)))
+                    #   sleep
+                    #   collisionPredicted = self.collisionPredictedCompare(distX, distY, XAvoidTolerance)
+                    # do what you were doing before
+
                     #collisionPredicted = self.collisionPredictedCompare(collisionPredicted, distX, distY, distZ, XAvoidTolerance, YAvoidTolerance, ZAvoidTolerance)
                     break
                 else: # TESTING ONLY; REMOVE LATER PLS
@@ -690,8 +705,9 @@ class Plane():
         zAvoid = 15
         print("avoidance WP = (%s"%xAvoid,", %s"%yAvoid,", %s)"%zAvoid)
         print("go to avoidance waypoint")
-        #wpAvoid = LocationGlobalRelative(xAvoid, yAvoid, zAvoid)
-        #return wpAvoid
+        
+        wpAvoid = LocationGlobalRelative(xAvoid, yAvoid, zAvoid)
+        return wpAvoid
 
     def save_to_file(self):
         
