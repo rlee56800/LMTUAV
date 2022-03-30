@@ -74,14 +74,14 @@ def main(graph_name: str, file_name: str, map_intruder: int, predicted_indices =
         plt.plot(intruder_longitude, intruder_lattitude, color='red') # Creates line
         # throw error if either are empty
 
-    # # just for testing
-    # # green = no prediction
-    plt.scatter(-117.811314, 34.045759, color = 'green')
-    plt.scatter(-117.818760, 34.040269, color = 'purple')
+    # TESTING SPACE
+    # plt.scatter(-117.whatever, 34.whatever, color = 'green')
+    plt.scatter(-117.812176, 34.044746, color = 'orange')
+    plt.scatter(-117.817139, 34.044439, color = 'green')
+    plt.scatter(-117.811862, 34.038192, color = 'green')
+    plt.scatter(-117.781062, 34.089111, color = 'purple')
 
-    # # purple = prediction
-    # plt.scatter(34.045819, -117.792054, color = 'purple')
-    # plt.scatter(34.043966, -117.828104, color = 'purple')
+
     if predicted_indices:
         for i in predicted_indices: # predictive paths; comment out for less hairy graph
             #plt.scatter(future_pos_x[i], future_pos_y[i]) # scatter plot dots
