@@ -28,7 +28,7 @@ if __name__ == '__main__':
     #-- Arm and takeoff
     if not plane.is_armed(): plane.arm_and_takeoff(altitude=10)
 
-    avoidWP = [34.0793936, -117.6002312, 100]
+    avoidWP = [34.0458323, -117.7980, 0]
     plane.run()
     
     while plane.is_armed():

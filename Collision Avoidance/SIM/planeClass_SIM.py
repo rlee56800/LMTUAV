@@ -27,7 +27,7 @@ import serial
 
 ser = serial.Serial(
     
-    port='COM5',
+    port='COM4',
     baudrate = 9600,
     parity=serial.PARITY_NONE,
     stopbits=serial.STOPBITS_ONE,
@@ -356,6 +356,7 @@ class Plane():
 
         #insert avoid wp to list
         missionlist.insert(currentWP_index,newCMD)
+        #missionlist.insert(0,newCMD)
 
         # Clear the current mission (command is sent when we call upload())
         self.mission.clear()
@@ -557,12 +558,21 @@ class Plane():
                 if collisionPredicted:
                     print("************************************************************")
                     print("                  Predicted Collision")
-                    # print("self position: [%f, %f]"%(posX/139, posY/111))
-                    # print("intruder position: [%f, %f]"%(v2posX/139, v2posY/111))
+                    print("self position: [%f, %f]"%(posX/139, posY/111))
+                    print("intruder position: [%f, %f]"%(v2posX/139, v2posY/111))
                     print(" ")
                     print("predicted collision at (%f,"%self.pos_lat, " %f)"%self.pos_lon)
                     print("************************************************************")
-                    self.avoid(v2posX, posX, v2posY, posY, posZ)
+                    
+                    #self.ap_mode = VehicleMode('GUIDE') # copter only
+                    #self.vehicle.simple_goto(self.avoid(v2posX, posX, v2posY, posY, posZ))
+                    #self.goto(LocationGlobalRelative(34.0457790, -118.7978, 0)) # never goes there
+                    #self.mission.clear() # does not cancel current mission
+                    #self.insert_avoidWP(self.current_WP_number(), self.avoid(v2posX, posX, v2posY, posY, posZ)) # doesn't work; does not give list of positoins
+                    self.insert_avoidWP(self.current_WP_number(), [34.0458323, -117.7980, 0]) # doesn't work
+                    self.ap_mode = VehicleMode('GUIDE')
+                    self.ap_mode = VehicleMode('AUTO')
+                    #self.mission.add(Command( 0, 0, 0, mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT, mavutil.mavlink.MAV_CMD_NAV_WAYPOINT, 0, 0, 0, 0, 0, 0, avoidWP[0], avoidWP[1], avoidWP[2]))
                     #collisionPredicted = self.collisionPredictedCompare(collisionPredicted, distX, distY, distZ, XAvoidTolerance, YAvoidTolerance, ZAvoidTolerance)
                     break
                 else: # TESTING ONLY; REMOVE LATER PLS
@@ -639,7 +649,7 @@ class Plane():
             print("\n $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ ")
             print('dist_self = %f'%dist_self)
             print('dist_intr = %f'%dist_intr)
-            print("crash at: [%f, %f]"%(crash_lat, crash_lon))
+            #print("crash at: [%f, %f]"%(crash_lat, crash_lon))
             # if the point closer to the predicted collision is within the tolerance
             if min(dist_self, dist_intr) <= XAvoidTolerance:
                 return True
@@ -692,6 +702,7 @@ class Plane():
         print("go to avoidance waypoint")
         #wpAvoid = LocationGlobalRelative(xAvoid, yAvoid, zAvoid)
         #return wpAvoid
+        return [xAvoid, yAvoid, zAvoid] # note: insert_avoidWP requires a list of x, y, z values
 
     def save_to_file(self):
         
