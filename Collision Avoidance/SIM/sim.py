@@ -31,13 +31,16 @@ if __name__ == '__main__':
     avoidWP = [34.0458323, -117.7980, 0]
     plane.run()
     
+    #
     while plane.is_armed():
-        if(plane.current_WP_number() == 3):
-            plane.insert_avoidWP(plane.current_WP_number(), avoidWP)
-            #print("current_WP_number: ", plane.current_WP_number())
-            time.sleep(1)
-        #print("current_WP_number: ", plane.current_WP_number())   
+    #     if(plane.current_WP_number() == 3):
+    #         plane.insert_avoidWP(plane.current_WP_number(), avoidWP)
+    #         #print("current_WP_number: ", plane.current_WP_number())
+    #         time.sleep(1)
+    #     #print("current_WP_number: ", plane.current_WP_number())   
         time.sleep(1)
+    
+    plane.mission.clear()
     
 
 

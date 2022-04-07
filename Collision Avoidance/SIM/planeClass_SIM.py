@@ -336,7 +336,7 @@ class Plane():
             
             #print("Set to AUTO")
             #self.set_ap_mode("AUTO")
-
+        self.vehicle.airspeed = 50.0
             
         return True
     
@@ -356,10 +356,12 @@ class Plane():
 
         #insert avoid wp to list
         missionlist.insert(currentWP_index,newCMD)
+        #missionlist.insert(currentWP_index-2,newCMD)
         #missionlist.insert(0,newCMD)
 
         # Clear the current mission (command is sent when we call upload())
         self.mission.clear()
+        self.vehicle.flush()
 
         #Write the modified mission and flush to the vehicle
         for cmd in missionlist:
@@ -545,6 +547,7 @@ class Plane():
             timestep = 1
 
             for i in range (10):
+                print("\n &&&&&&&&&&&&&&&&&&&&&&&7 ")
                 distX = self.getFutureDistance(timestep, posX, velX, v2posX, v2velX)
                 print("    X distance is %s m"%distX, " in %s seconds"%timestep)
                 distY = self.getFutureDistance(timestep, posY, velY, v2posY, v2velY)
@@ -555,6 +558,7 @@ class Plane():
                 timestep = timestep + 0.5
                 #collisionPredicted = self.collisionPredictedCompare(collisionPredicted, distX, distY, distZ, XAvoidTolerance, YAvoidTolerance, ZAvoidTolerance)
                 collisionPredicted = self.collisionPredictedCompare(distX, distY, XAvoidTolerance)
+                print('!!!!!CURRENT WP NUMBER: %f' %self.current_WP_number())
                 if collisionPredicted:
                     print("************************************************************")
                     print("                  Predicted Collision")
@@ -583,7 +587,8 @@ class Plane():
                     print("************************************************************")
 
 
-
+            for item in self.mission:
+                print(item)
             time.sleep(5)
 
     def getFutureDistance(self, time, ownPosX, ownVelX, targPosX, targetVelX):
@@ -646,9 +651,9 @@ class Plane():
             dist_self = ( (((crash_lat-self.pos_lat)**2) + ((crash_lon-self.pos_lat)**2))**(1/2) ) # distance collision is from self
             dist_intr = ( (((crash_lat-self.receive_lattitude)**2) + ((crash_lon-self.receive_longitude)**2))**(1/2) ) # distance collision is from intruder
 
-            print("\n $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ ")
-            print('dist_self = %f'%dist_self)
-            print('dist_intr = %f'%dist_intr)
+            # print("\n $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ ")
+            # print('dist_self = %f'%dist_self)
+            # print('dist_intr = %f'%dist_intr)
             #print("crash at: [%f, %f]"%(crash_lat, crash_lon))
             # if the point closer to the predicted collision is within the tolerance
             if min(dist_self, dist_intr) <= XAvoidTolerance:
