@@ -38,7 +38,7 @@ if __name__ == '__main__':
     #         #print("current_WP_number: ", plane.current_WP_number())
     #         time.sleep(1)
     #     #print("current_WP_number: ", plane.current_WP_number())   
-        time.sleep(1)
+        time.sleep(1) # just so the main thread doesn't end and printouts keep printing out :)
     
     plane.mission.clear()
     
