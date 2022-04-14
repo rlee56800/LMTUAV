@@ -698,9 +698,9 @@ class Plane():
             # print('dist_intr = %f'%dist_intr)
             #print("crash at: [%f, %f]"%(crash_lat, crash_lon))
             # if the point closer to the predicted collision is within the tolerance
-            print('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
-            print('crash distance from self / intruder')
-            print(dist_self, dist_intr)
+            # print('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
+            # print('crash distance from self / intruder')
+            # print(dist_self, dist_intr)
             if min(dist_self, dist_intr) <= XAvoidTolerance:
                 return True
         return False
@@ -780,14 +780,14 @@ class Plane():
         xAvoid = (abs(x) + (self.pos_lat * 139)) / 139
         yAvoid = (abs(y) + (self.pos_lon * 111)) / 111
         zAvoid = 15
-        print("avoidance WP = (%s"%xAvoid,", %s"%yAvoid,", %s)"%zAvoid)
-        print("go to avoidance waypoint")
+        # print("avoidance WP = (%s"%xAvoid,", %s"%yAvoid,", %s)"%zAvoid)
+        # print("go to avoidance waypoint")
         wpAvoid = LocationGlobalRelative(xAvoid, yAvoid, zAvoid)
         return wpAvoid
         #return [xAvoid, yAvoid, zAvoid] # note: insert_avoidWP requires a list of x, y, z values
 
-    def avoid2(self):
-        print()
+    # def avoid2(self):
+    #     print()
 
     def save_to_file(self):
 
@@ -871,8 +871,8 @@ class Plane():
                 msg = ser.readline().decode()
                 print(msg)
 
-            print("msg!!!!!!!!!!!!\n")
-            print(msg)
+            #print("msg!!!!!!!!!!!!\n")
+            #print(msg)
 
 
             self.receive_msg = True
