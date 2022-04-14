@@ -28,7 +28,7 @@ import serial
 
 ser = serial.Serial(
 
-    port='COM4',
+    port='COM5',
     baudrate = 9600,
     parity=serial.PARITY_NONE,
     stopbits=serial.STOPBITS_ONE,
@@ -556,7 +556,7 @@ class Plane():
             timestep = 1
 
             for i in range (10):
-                print("\n &&&&&&&&&&&&&&&&&&&&&&&7 ")
+                #print("\n &&&&&&&&&&&&&&&&&&&&&&&7 ")
                 distX = self.getFutureDistance(timestep, posX, velX, v2posX, v2velX)
                 print("    X distance is %s m"%distX, " in %s seconds"%timestep)
                 distY = self.getFutureDistance(timestep, posY, velY, v2posY, v2velY)
@@ -577,29 +577,29 @@ class Plane():
                     print("predicted collision at (%f,"%self.pos_lat, " %f)"%self.pos_lon)
                     print("************************************************************")
 
-                    if self.all_clear:
-                        self.all_clear = False
+                    # if self.all_clear:
+                    #     self.all_clear = False
 
-                        # tests n results
-                        #self.clear_mission()
-                        #self.mission.clear()
-                        #self.vehicle.flush()
-                        #self.vehicle.simple_goto(self.avoid(v2posX, posX, v2posY, posY, posZ))
-                        print("~~~~~~Change to GUIDE Mode~~~~~~~~")
-                        self.set_ap_mode("GUIDED") # copter only
-                        self.goto(LocationGlobalRelative(34.0458323, -117.7980, 0)) # never goes there; never tried in guided
-                        #self.mission.clear() # does not cancel current mission
-                        #self.insert_avoidWP(self.current_WP_number(), self.avoid(v2posX, posX, v2posY, posY, posZ)) # doesn't work; does not give list of positoins
-                        #self.set_ap_mode("AUTO")
-                        # IDEALLY go to avoid wp
-                        #mavutil.mavlink.MAV_GOTO_DO_HOLD(0, 2) # ardupilor
-                        #self.ap_mode = VehicleMode('GUIDE')
-                        #self.goto(LocationGlobalRelative(34.0458323, -117.7980, 0))
-                        #self.insert_avoidWP(self.current_WP_number(), [34.0458323, -117.7980, 0]) # doesn't work
-                        # self.ap_mode = VehicleMode('AUTO')
-                        #self.mission.add(Command( 0, 0, 0, mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT, mavutil.mavlink.MAV_CMD_NAV_WAYPOINT, 0, 0, 0, 0, 0, 0, avoidWP[0], avoidWP[1], avoidWP[2]))
-                        #collisionPredicted = self.collisionPredictedCompare(collisionPredicted, distX, distY, distZ, XAvoidTolerance, YAvoidTolerance, ZAvoidTolerance)
-                    break
+                    #     # tests n results
+                    #     #self.clear_mission()
+                    #     #self.mission.clear()
+                    #     #self.vehicle.flush()
+                    #     #self.vehicle.simple_goto(self.avoid(v2posX, posX, v2posY, posY, posZ))
+                    #     print("~~~~~~Change to GUIDE Mode~~~~~~~~")
+                    #     self.set_ap_mode("GUIDED") # copter only
+                    #     self.goto(LocationGlobalRelative(34.0458323, -117.7980, 0)) # never goes there; never tried in guided
+                    #     #self.mission.clear() # does not cancel current mission
+                    #     #self.insert_avoidWP(self.current_WP_number(), self.avoid(v2posX, posX, v2posY, posY, posZ)) # doesn't work; does not give list of positoins
+                    #     #self.set_ap_mode("AUTO")
+                    #     # IDEALLY go to avoid wp
+                    #     #mavutil.mavlink.MAV_GOTO_DO_HOLD(0, 2) # ardupilor
+                    #     #self.ap_mode = VehicleMode('GUIDE')
+                    #     #self.goto(LocationGlobalRelative(34.0458323, -117.7980, 0))
+                    #     #self.insert_avoidWP(self.current_WP_number(), [34.0458323, -117.7980, 0]) # doesn't work
+                    #     # self.ap_mode = VehicleMode('AUTO')
+                    #     #self.mission.add(Command( 0, 0, 0, mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT, mavutil.mavlink.MAV_CMD_NAV_WAYPOINT, 0, 0, 0, 0, 0, 0, avoidWP[0], avoidWP[1], avoidWP[2]))
+                    #     #collisionPredicted = self.collisionPredictedCompare(collisionPredicted, distX, distY, distZ, XAvoidTolerance, YAvoidTolerance, ZAvoidTolerance)
+                    # break
                 else: # TESTING ONLY; REMOVE LATER PLS
                     self.all_clear = True
                     print("************************************************************")
@@ -609,8 +609,7 @@ class Plane():
                     print("************************************************************")
 
                     # IDEALLY return to mission
-                    self.set_ap_mode("AUTO")
-                    #mavutil.mavlink.MAV_GOTO_DO_HOLD(1)
+                    #self.set_ap_mode("AUTO") # THIS ONE WORKS
 
 
             for item in self.mission:
@@ -659,9 +658,11 @@ class Plane():
 
         # thank you stack overflow
         # https://stackoverflow.com/questions/2931573/determining-if-two-rays-intersect
-        dx = self.receive_lattitude - self.pos_lat
-        dy = self.receive_longitude - self.pos_lon
+        dx = (self.receive_lattitude - self.pos_lat) * 111 # multiply for conversion to meters
+        dy = (self.receive_longitude - self.pos_lon) * 139 # multiply for conversion to meters
         det = self.receive_velocity[0] * self.vy - self.receive_velocity[1] * self.vx
+        if det == 0:
+            return False
         u = (dy * self.receive_velocity[0] - dx * self.receive_velocity[1]) / det
         v = (dy * self.vx - dx * self.vy) / det
 
@@ -669,19 +670,22 @@ class Plane():
         #                        p = [intr current position] + [intr current velocity] * v
         # if u and v are positive, point of intersection is in front of both
         if u >= 0 and v >= 0:
-            crash_lat = self.pos_lat + self.vx * u # no particular reason to use this over the other
+            crash_lat = self.pos_lat + self.vx * u # no particular reason to use this over the v
             crash_lon = self.pos_lon + self.vy * u
 
             # distance formula: sqrt( (x2-x1)^2 + (y2-y1)^2 )
             #                   ( (  ((x2-x1)**2) + ((y2-y1)**2)  )**(1/2) )
-            dist_self = ( (((crash_lat-self.pos_lat)**2) + ((crash_lon-self.pos_lat)**2))**(1/2) ) # distance collision is from self
-            dist_intr = ( (((crash_lat-self.receive_lattitude)**2) + ((crash_lon-self.receive_longitude)**2))**(1/2) ) # distance collision is from intruder
+            dist_self = ( ((((crash_lat-self.pos_lat)*111)**2) + (((crash_lon-self.pos_lon)*139)**2))**(1/2) ) # distance collision is from self
+            dist_intr = ( ((((crash_lat-self.receive_lattitude)*111)**2) + (((crash_lon-self.receive_longitude)*139)**2))**(1/2) ) # distance collision is from intruder
 
             # print("\n $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ ")
             # print('dist_self = %f'%dist_self)
             # print('dist_intr = %f'%dist_intr)
             #print("crash at: [%f, %f]"%(crash_lat, crash_lon))
             # if the point closer to the predicted collision is within the tolerance
+            print('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
+            print('crash distance from self / intruder')
+            print(dist_self, dist_intr)
             if min(dist_self, dist_intr) <= XAvoidTolerance:
                 return True
         return False
