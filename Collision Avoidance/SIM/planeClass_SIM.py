@@ -569,7 +569,7 @@ class Plane():
                 #collisionPredicted = self.collisionPredictedCompare(collisionPredicted, distX, distY, distZ, XAvoidTolerance, YAvoidTolerance, ZAvoidTolerance)
                 collisionPredicted = self.collisionPredictedCompare(distX, distY, XAvoidTolerance)
                 #collisionPredicted = self.collisionPredictedCompare()
-                print('!!!!!CURRENT WP NUMBER: %f' %self.current_WP_number())
+                #print('!!!!!CURRENT WP NUMBER: %f' %self.current_WP_number())
                 if collisionPredicted:
                     print("************************************************************")
                     print("                  Predicted Collision")
@@ -584,6 +584,7 @@ class Plane():
                         #print('WEEEEEEEEEEEEE AREEEEEEEEEEEEEEEEEEEEEEEE COLLIDINGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG')
                         self.all_clear = False
                         self.counter = -1
+                        # TODO: find new avoid point if another collision is predicted??
 
                         # tests n results
                         #self.clear_mission()
