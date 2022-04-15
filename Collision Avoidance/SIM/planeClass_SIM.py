@@ -104,7 +104,7 @@ class Plane():
 
         # Collision avoidance variables
         self.all_clear = True               #- there is no crash predicted, proceed
-        self.counter = -1                   #- counter*5 seconds for the plane to go toward avoidance point
+        self.counter = 0                   #- counter*5 seconds for the plane to go toward avoidance point
 
     def _connect(self, connection_string):      #-- (private) Connect to Vehicle
         """ (private) connect with the autopilot
@@ -509,7 +509,7 @@ class Plane():
 
             collisionPredicted = False
 
-            XAvoidTolerance = 50.0# 10.0
+            XAvoidTolerance = 40.0# 10.0
             YAvoidTolerance = 40.0# 10.0
             ZAvoidTolerance = 40.0# 10.0
 
@@ -583,7 +583,7 @@ class Plane():
                         # if plane WAS going toward mission, but detected a collision
                         #print('WEEEEEEEEEEEEE AREEEEEEEEEEEEEEEEEEEEEEEE COLLIDINGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG')
                         self.all_clear = False
-                        self.counter = -1
+                        self.counter = 0
                         # TODO: find new avoid point if another collision is predicted??
 
                         # tests n results
@@ -619,7 +619,7 @@ class Plane():
                     #      DON'T
                     #self.set_ap_mode("AUTO") # THIS ONE WORKS
                 
-                if self.counter >= 3: # 3 iterations of predict(); 15 seconds; set 3 to whatever
+                if self.counter >= 2: # 2 iterations of predict(); 10 seconds; set 2 to whatever
                     self.counter = 0
                     self.all_clear = True
                     self.set_ap_mode("AUTO") # return to mission
@@ -700,8 +700,8 @@ class Plane():
             #print("crash at: [%f, %f]"%(crash_lat, crash_lon))
             # if the point closer to the predicted collision is within the tolerance
             # print('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
-            # print('crash distance from self / intruder')
-            # print(dist_self, dist_intr)
+            print('crash distance from self / intruder')
+            print(dist_self, dist_intr)
             if min(dist_self, dist_intr) <= XAvoidTolerance:
                 return True
         return False
