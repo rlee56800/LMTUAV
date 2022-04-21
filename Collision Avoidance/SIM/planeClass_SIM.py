@@ -486,7 +486,17 @@ class Plane():
         self.vehicle.channels.overrides = {}
 
     def prediction(self):
-
+        
+        print("In Prediction funtion\n")
+        
+        #For Flight Test only
+        '''
+        tgt_mode    = VehicleMode("AUTO")
+        while (self.get_ap_mode() != tgt_mode):    
+            print("No in Auto Mode, No Predicting")
+            time.sleep(5)
+        '''
+        #For Simulation only
         while not self.is_armed():
             print("Not Armed, No Predicting")
             time.sleep(10)
