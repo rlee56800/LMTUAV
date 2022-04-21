@@ -508,8 +508,10 @@ class Plane():
                 pass
 
             print('***** PREDICTION *****')
-            print(self.receive_lattitude)
-            print(self.receive_longitude)
+            print("receive_lattitude: ",self.receive_lattitude)
+            print("receive_longitude: ",self.receive_longitude)
+            print("ownship_lattitude: ",self.pos_lat)
+            print("ownship_longitude: ",self.pos_lon)
 
             time.sleep(3)
 
@@ -589,7 +591,7 @@ class Plane():
                     print("self position: [%f, %f]"%(posX/139, posY/111))
                     print("intruder position: [%f, %f]"%(v2posX/139, v2posY/111))
                     print(" ")
-                    print("predicted collision at (%f,"%self.pos_lat, " %f)"%self.pos_lon)
+                    print("predicted collision will happend at (%f,"%self.crash_lat, " %f)"%self.crash_lon)
                     print("************************************************************")
                     self.will_crash = True
 
@@ -600,27 +602,12 @@ class Plane():
                         self.counter = 0
                         # TODO: find new avoid point if another collision is predicted??
 
-                        # tests n results
-                        #self.clear_mission()
-                        #self.mission.clear()
-                        #self.vehicle.flush()
-                        #self.vehicle.simple_goto(self.avoid(v2posX, posX, v2posY, posY, posZ))
                         #print("~~~~~~Change to GUIDE Mode~~~~~~~~")
                         self.set_ap_mode("GUIDED")
                         self.goto(self.avoid(v2posX, posX, v2posY, posY, posZ)) # go away
                         #self.goto(LocationGlobalRelative(34.0458323, -117.7980, 0))
-                        #self.mission.clear() # does not cancel current mission
-                        #self.insert_avoidWP(self.current_WP_number(), self.avoid(v2posX, posX, v2posY, posY, posZ)) # doesn't work; does not give list of positoins
-                        #self.set_ap_mode("AUTO")
-                        # IDEALLY go to avoid wp
-                        #mavutil.mavlink.MAV_GOTO_DO_HOLD(0, 2) # ardupilor
-                        #self.ap_mode = VehicleMode('GUIDE')
-                        #self.goto(LocationGlobalRelative(34.0458323, -117.7980, 0))
-                        #self.insert_avoidWP(self.current_WP_number(), [34.0458323, -117.7980, 0]) # doesn't work
-                        # self.ap_mode = VehicleMode('AUTO')
-                        #self.mission.add(Command( 0, 0, 0, mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT, mavutil.mavlink.MAV_CMD_NAV_WAYPOINT, 0, 0, 0, 0, 0, 0, avoidWP[0], avoidWP[1], avoidWP[2]))
-                        #collisionPredicted = self.collisionPredictedCompare(collisionPredicted, distX, distY, distZ, XAvoidTolerance, YAvoidTolerance, ZAvoidTolerance)
                     break
+                    
                 else: # TESTING ONLY; REMOVE LATER PLS
                     #self.all_clear = True
                     print("************************************************************")
@@ -656,34 +643,6 @@ class Plane():
 
     #def collisionPredictedCompare(self, collisionPredicted, distX, distY, distZ, XAvoidTolerance, YAvoidTolerance, ZAvoidTolerance):
     def collisionPredictedCompare(self, distX, distY, XAvoidTolerance):
-        ''' GRAVEYARD
-        # pp_dist = ((distX**2) + (distY**2) + (distZ**2))**(1/2) #point to point distance
-        # #if (distX <= XAvoidTolerance and distY <= YAvoidTolerance and distZ <= ZAvoidTolerance):
-        # if pp_dist < XAvoidTolerance: # all tolerance are the same value
-        #     collisionPredicted = True
-        # else:
-        #     collisionPredicted = False
-        # return collisionPredicted
-
-        # dlat = distX# * 1.113195e5 ### conversion to degrees of longitude; 111,319.5 m per degree
-        # dlong = distY# * 1.113195e5
-        # ### if this doesn't work, try calculating distX in here
-
-        # R_mag = mag([dlat, dlong]) ### calculates magnitude of NED vector and compares to separation distance
-        # print(R_mag)
-        #square = [abs(x**2) for x in [dlat, dlong]]
-        #sumInside = sum(square)
-        #tot_sum = abs(dlat**2) + abs(dlong**2)
-        #magnitude = [ math.sqrt(tot_sum) ]
-
-        #magnitude = math.sqrt(abs(distX**2) + abs(distY**2))
-        # ### logic (what to do if ...)
-        # print("\n=============================================")
-        # print('distX = %f' %distX)
-        # print('distY = %f' %distY)
-        # print('Magnitude %f\n'%magnitude)
-       # return magnitude <= XAvoidTolerance
-        '''
 
         # thank you stack overflow
         # https://stackoverflow.com/questions/2931573/determining-if-two-rays-intersect
@@ -718,39 +677,6 @@ class Plane():
             if min(dist_self, dist_intr) <= XAvoidTolerance:
                 return True
         return False
-    '''
-    # ignore this it's a remnant
-    def collisionPredictedCompare(self, ownLat, ownLon, ownV, targLat, targLon, targV, XAvoidTolerance):
-        # thank you stack overflow
-        # https://stackoverflow.com/questions/2931573/determining-if-two-rays-intersect
-        dx = (targLat - ownLat) * 111 # multiply for conversion to meters
-        dy = (targLon - ownLon) * 139 # multiply for conversion to meters
-        det = targV[0] * ownV[1] - targV[1] * ownV[0]
-        if det == 0:
-            return False
-        u = (dy * targV[0] - dx * targV[1]) / det
-        v = (dy * ownV[0] - dx * ownV[1]) / det
-
-        # intersection equations p = [self current position] + [self current velocity] * u
-        #                        p = [intr current position] + [intr current velocity] * v
-        # if u and v are positive, point of intersection is in front of both
-        if u >= 0 and v >= 0:
-            crash_lat = ownLat + ownV[0] * u # no particular reason to use this over the v
-            crash_lon = ownLon + ownV[1] * u
-
-            # distance formula: sqrt( (x2-x1)^2 + (y2-y1)^2 )
-            #                   ( (  ((x2-x1)**2) + ((y2-y1)**2)  )**(1/2) )
-            dist_self = ( ((((crash_lat-ownLat)*111)**2) + (((crash_lon-ownLon)*139)**2))**(1/2) ) # distance collision is from self
-            dist_intr = ( ((((crash_lat-targLat)*111)**2) + (((crash_lon-targLon)*139)**2))**(1/2) ) # distance collision is from intruder
-
-            # if the point closer to the predicted collision is within the tolerance
-            print('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
-            print('crash distance from self / intruder')
-            print(dist_self, dist_intr)
-            if min(dist_self, dist_intr) <= XAvoidTolerance:
-                return True
-        return False
-'''
 
     def chooseY(self, ypos, yneg):
         y = ypos
@@ -799,9 +725,6 @@ class Plane():
         wpAvoid = LocationGlobalRelative(xAvoid, yAvoid, zAvoid)
         return wpAvoid
         #return [xAvoid, yAvoid, zAvoid] # note: insert_avoidWP requires a list of x, y, z values
-
-    # def avoid2(self):
-    #     print()
 
     def save_to_file(self):
 
@@ -884,7 +807,7 @@ class Plane():
             print(msg)
 
             while not msg:
-                print('waiting')
+                print('waiting for xbee msg')
                 time.sleep(1)
                 msg = ser.readline().decode()
                 print(msg)
