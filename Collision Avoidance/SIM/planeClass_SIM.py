@@ -597,7 +597,7 @@ class Plane():
 
                     if self.all_clear: # all_clear True: plane is heading toward mission
                         # if plane WAS going toward mission, but detected a collision
-                        #print('WEEEEEEEEEEEEE AREEEEEEEEEEEEEEEEEEEEEEEE COLLIDINGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG')
+                        print('WEEEEEEEEEEEEE AREEEEEEEEEEEEEEEEEEEEEEEE COLLIDINGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG')
                         self.all_clear = False
                         self.counter = 0
                         # TODO: find new avoid point if another collision is predicted??
@@ -658,8 +658,8 @@ class Plane():
         #                        p = [intr current position] + [intr current velocity] * v
         # if u and v are positive, point of intersection is in front of both
         if u >= 0 and v >= 0:
-            self.crash_lat = self.pos_lat + self.vx * u # no particular reason to use this over the v
-            self.crash_lon = self.pos_lon + self.vy * u
+            self.crash_lat = ((self.pos_lat * 111) + self.vx * u)/111 # no particular reason to use this over the v
+            self.crash_lon = ((self.pos_lon * 139) + self.vy * u)/139
 
             # distance formula: sqrt( (x2-x1)^2 + (y2-y1)^2 )
             #                   ( (  ((x2-x1)**2) + ((y2-y1)**2)  )**(1/2) )
@@ -675,6 +675,7 @@ class Plane():
             print('crash distance from self / intruder')
             print(dist_self, dist_intr)
             if min(dist_self, dist_intr) <= XAvoidTolerance:
+                print(XAvoidTolerance)
                 return True
         return False
 
@@ -759,6 +760,7 @@ class Plane():
             if self.will_crash:
                 f.write(timeNow + ": " + "Predicted crash lattitude : " + str(self.crash_lat) + '\n')
                 f.write(timeNow + ": " + "Predicted crash longitude : " + str(self.crash_lon) + '\n')
+                f.write(timeNow + ": " + "Crash location : %f, %f" %(self.crash_lon, self.crash_lat) + '\n')
                 self.will_crash = False # prints faster than prediction updates; only print once
 
 
