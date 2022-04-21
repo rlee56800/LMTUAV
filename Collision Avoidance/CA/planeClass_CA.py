@@ -105,6 +105,9 @@ class Plane():
         # Collision avoidance variables
         self.all_clear = True               #- there is no crash predicted, proceed
         self.counter = 0                   #- counter*5 seconds for the plane to go toward avoidance point
+        self.will_crash = False             #- collision is predicted (i.e. next 2 vars have values)
+        self.crash_lat = 0.0                #- latitude of crash
+        self.crash_lon = 0.0                #- longitude of crash
 
     def _connect(self, connection_string):      #-- (private) Connect to Vehicle
         """ (private) connect with the autopilot
@@ -581,6 +584,7 @@ class Plane():
                     print(" ")
                     print("predicted collision at (%f,"%self.pos_lat, " %f)"%self.pos_lon)
                     print("************************************************************")
+                    self.will_crash = True
 
                     if self.all_clear: # all_clear True: plane is heading toward mission
                         # if plane WAS going toward mission, but detected a collision
@@ -617,11 +621,8 @@ class Plane():
                     # print("self position: [%f, %f]"%(posX, posY))
                     # print("intruder position: [%f, %f]"%(v2posX, v2posY))
                     print("************************************************************")
+                    self.will_crash = False
 
-                    # IDEALLY return to mission
-                    #      DON'T
-                    #self.set_ap_mode("AUTO") # THIS ONE WORKS
-                
                 if self.counter >= 2: # 2 iterations of predict(); 10 seconds; set 2 to whatever
                     self.counter = 0
                     self.all_clear = True
@@ -663,13 +664,13 @@ class Plane():
         #                        p = [intr current position] + [intr current velocity] * v
         # if u and v are positive, point of intersection is in front of both
         if u >= 0 and v >= 0:
-            crash_lat = self.pos_lat + self.vx * u # no particular reason to use this over the v
-            crash_lon = self.pos_lon + self.vy * u
+            self.crash_lat = self.pos_lat + self.vx * u # no particular reason to use this over the v
+            self.crash_lon = self.pos_lon + self.vy * u
 
             # distance formula: sqrt( (x2-x1)^2 + (y2-y1)^2 )
             #                   ( (  ((x2-x1)**2) + ((y2-y1)**2)  )**(1/2) )
-            dist_self = ( ((((crash_lat-self.pos_lat)*111)**2) + (((crash_lon-self.pos_lon)*139)**2))**(1/2) ) # distance collision is from self
-            dist_intr = ( ((((crash_lat-self.receive_lattitude)*111)**2) + (((crash_lon-self.receive_longitude)*139)**2))**(1/2) ) # distance collision is from intruder
+            dist_self = ( ((((self.crash_lat-self.pos_lat)*111)**2) + (((self.crash_lon-self.pos_lon)*139)**2))**(1/2) ) # distance collision is from self
+            dist_intr = ( ((((self.crash_lat-self.receive_lattitude)*111)**2) + (((self.crash_lon-self.receive_longitude)*139)**2))**(1/2) ) # distance collision is from intruder
 
             print('crash distance from self / intruder')
             print(dist_self, dist_intr)
@@ -756,6 +757,10 @@ class Plane():
                 f.write(timeNow + " : " + "Intruder lattitude : " + str(self.receive_lattitude) + '\n')
                 f.write(timeNow + " : " + "Intruder longitude : " + str(self.receive_longitude) + '\n')
 
+            if self.will_crash:
+                f.write(timeNow + ": " + "Predicted crash lattitude : " + str(self.crash_lat) + '\n')
+                f.write(timeNow + ": " + "Predicted crash longitude : " + str(self.crash_lon) + '\n')
+                self.will_crash = False # prints faster than prediction updates; only print once
 
 
             #secondTolastGPS = [lastGPS[0],lastGPS[0]]
