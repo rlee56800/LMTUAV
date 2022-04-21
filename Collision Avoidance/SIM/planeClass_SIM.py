@@ -749,10 +749,10 @@ class Plane():
 
 
     def avoid(self, intruderX, ownX, intruderY, ownY, distZ):
-        h = abs(abs(intruderX) - abs(ownX))
-        k = abs(abs(intruderY) - abs(ownY))
-        a = 3
-        b = 2
+        h = abs(abs(intruderX) - abs(ownX)) # distance between x of both
+        k = abs(abs(intruderY) - abs(ownY)) # distance between y of both
+        a = 3 # constant value dependent on intruder velocity
+        b = 2 # constant value dependent on intruder velocity
         d = (a**4)*(k**2) + (a**2)*(b**2)*(h**2)
         u = ( (b**2)*(h**2) + (a**2)*(k**2) - (a**2)*(b**2) ) / ((b**2)*h)
         sq = (b**4)*(h**3)*u*d - (u**2)*(b**4)*(h**2)*d + (a**4)*(b**4)*(h**2)*(k**2)*(u**2)
