@@ -18,14 +18,18 @@ if __name__ == '__main__':
     parser.add_argument('--connect', default='tcp:127.0.0.1:5762')
     args = parser.parse_args()
     
-    #connection_string = args.connect   #Connection to Mission Planner Simulation
-    #connection_string = '/dev/ttyACM0'	#Establishing Connection With PIXHAWK  Linux
-    connection_string = 'COM9'#'COM5'  #Establishing Connection With PIXHAWK  Windows
+    #Connection to Mission Planner Simulation
+    #connection_string = args.connect   
+    
+    #Establishing Connection With PIXHAWK
+    #connection_string = '/dev/ttyACM0'	  #Linux: use 'dmesg | grep tty" to find the correct port
+    connection_string = 'COM9'#'COM5'     #Windows: check Device manager for the correct port
+    
     #-- Create the object
     plane = Plane(connection_string)
 
     
-    #-- Arm and takeoff for Simulation only
+    #Simulation only -- Arm and takeoff for 
     #if not plane.is_armed(): plane.arm_and_takeoff(altitude=10)
 
     avoidWP = [34.0458323, -117.7980, 0]
