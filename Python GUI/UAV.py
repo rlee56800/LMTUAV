@@ -76,7 +76,10 @@ def main(graph_name: str, file_name: str, map_intruder: int, predicted_indices =
 
     # TESTING SPACE
     # plt.scatter(-117.whatever, 34.whatever, color = 'green')
-    #plt.scatter(-117.93457797298748, 34.107844146180454, color = 'green')
+    plt.scatter(-117.793556, 34.048071, color = 'purple')
+    plt.scatter(-117.800875, 34.046374, color = 'purple')
+    plt.scatter(-117.793221, 34.045700, color = 'blue')
+    #plt.scatter(117.851720786, 34.0116185925, color = 'orange')
     # plt.scatter(-117.812176, 34.044746, color = 'orange')
     # plt.scatter(-117.817139, 34.044439, color = 'green')
     # plt.scatter(-117.811862, 34.038192, color = 'green')

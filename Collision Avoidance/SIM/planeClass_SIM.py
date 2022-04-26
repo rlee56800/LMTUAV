@@ -591,21 +591,23 @@ class Plane():
                     print("self position: [%f, %f]"%(posX/139, posY/111))
                     print("intruder position: [%f, %f]"%(v2posX/139, v2posY/111))
                     print(" ")
-                    print("predicted collision will happend at (%f,"%self.crash_lat, " %f)"%self.crash_lon)
+                    print("collision predicted at (%f,"%self.crash_lat, " %f)"%self.crash_lon)
                     print("************************************************************")
                     self.will_crash = True
 
                     if self.all_clear: # all_clear True: plane is heading toward mission
                         # if plane WAS going toward mission, but detected a collision
-                        print('WEEEEEEEEEEEEE AREEEEEEEEEEEEEEEEEEEEEEEE COLLIDINGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG')
+                        #print('WEEEEEEEEEEEEE AREEEEEEEEEEEEEEEEEEEEEEEE COLLIDINGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG')
                         self.all_clear = False
                         self.counter = 0
                         # TODO: find new avoid point if another collision is predicted??
 
                         #print("~~~~~~Change to GUIDE Mode~~~~~~~~")
                         self.set_ap_mode("GUIDED")
-                        self.goto(self.avoid(v2posX, posX, v2posY, posY, posZ)) # go away
-                        #self.goto(LocationGlobalRelative(34.0458323, -117.7980, 0))
+
+                        # go away
+                        #self.goto(self.avoid(v2posX, posX, v2posY, posY, posZ)) # using avoid()
+                        self.goto(LocationGlobalRelative(34.0384535, -117.81742575, 0)) # using fixed point (very bottom of farm)
                     break
                     
                 else: # TESTING ONLY; REMOVE LATER PLS
