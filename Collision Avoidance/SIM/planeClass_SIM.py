@@ -9,6 +9,7 @@ initialize plane = Plane(vehicle), so that you can use the object in your own pr
 
 
 """
+from asyncio.windows_events import NULL
 from operator import truediv
 from dronekit import connect, VehicleMode, LocationGlobalRelative, Command, Battery, LocationGlobal, Attitude, LocationLocal
 from pymavlink import mavutil
@@ -67,9 +68,9 @@ class Plane():
         self.airspeed           = 0.0       #- [m/s]    airspeed
         self.groundspeed        = 0.0       #- [m/s]    ground speed
         #self.velocity           = []        #- [cm/s] [vx,vy,vz]
-        self.vx                 = 0.0       #- [m/s]    vx speed
-        self.vy                 = 0.0       #- [m/s]    vy speed
-        self.vz                 = 0.0       #- [m/s]    vz speed
+        self.vx                 = 0.0       #- [m/s]    vx speed (pos -> north, neg -> south)
+        self.vy                 = 0.0       #- [m/s]    vy speed (pos -> east, neg -> west)
+        self.vz                 = 0.0       #- [m/s]    vz speed (pos -> up, neg -> down)
 
         self.pos_lat            = 0.0       #- [deg]    latitude
         self.pos_lon            = 0.0       #- [deg]    longitude
@@ -99,7 +100,7 @@ class Plane():
         self.receive_lattitude = 0.0        #- [deg]    latitude
         self.receive_longitude = 0.0        #- [deg]    longitude
         self.receive_altitude = 0.0         #- [m]      altitude
-        self.receive_velocity = []          #- [m/s]    velocity of craft
+        self.receive_velocity = []          #- [m/s]    velocity of craft; [vx (+ north, - south), vy (+ east, - west), vz (+ up, - down)]
         self.receive_airspeed = 0.0         #- [m/s]    airspeed
 
         # Collision avoidance variables
@@ -137,9 +138,9 @@ class Plane():
                 self.pos_alt_rel    = message.relative_alt*1e-3
                 self.pos_alt_abs    = message.alt*1e-3
                 self.location_current = LocationGlobalRelative(self.pos_lat, self.pos_lon, self.pos_alt_rel)
-                self.vx             = message.vx*1e-3
-                self.vy             = message.vy*1e-3
-                self.vz             = message.vz*1e-3
+                self.vx             = message.vx*1e-3 # vx speed (pos -> north, neg -> south)
+                self.vy             = message.vy*1e-3 # vy speed (pos -> east, neg -> west)
+                self.vz             = message.vz*1e-3 # vz speed (pos -> up, neg -> down)
 
 
 
@@ -505,6 +506,13 @@ class Plane():
         while self.is_armed():
 
             while not self.receive_msg:
+                # clear out old data so ownship doesn't avoid a ghost
+                if self.receive_lattitude:
+                    self.receive_lattitude = 0.0        #- [deg]    latitude
+                    self.receive_longitude = 0.0        #- [deg]    longitude
+                    self.receive_altitude = 0.0         #- [m]      altitude
+                    self.receive_velocity = []          #- [m/s]    velocity of craft
+                    self.receive_airspeed = 0.0         #- [m/s]    airspeed
                 pass
 
             print('***** PREDICTION *****')
@@ -528,16 +536,16 @@ class Plane():
             YAvoidTolerance = 40.0# 10.0
             ZAvoidTolerance = 40.0# 10.0
 
-            velX = float(self.vx)
-            velY = float(self.vy)
-            velZ = float(self.vz)
+            velX = float(self.vx) # vx speed (pos -> north, neg -> south)
+            velY = float(self.vy) #- [m/s]  # vy speed (pos -> east, neg -> west) 
+            velZ = float(self.vz) #- [m/s]  # vz speed (pos -> up, neg -> down)
             posX = self.pos_lon * 139
             posY = self.pos_lat * 111
             posZ = self.pos_alt_rel
 
-            v2velX = self.receive_velocity[0]
-            v2velY = self.receive_velocity[1]
-            v2velZ = self.receive_velocity[2]
+            v2velX = self.receive_velocity[0] # vx speed (pos -> north, neg -> south)#- [m/s] 
+            v2velY = self.receive_velocity[1] # vy speed (pos -> east, neg -> west) #- [m/s] 
+            v2velZ = self.receive_velocity[2] # vz speed (pos -> up, neg -> down)
             v2posX = self.receive_longitude * 139
             v2posY = self.receive_lattitude * 111
             v2posZ = self.receive_altitude
@@ -606,8 +614,9 @@ class Plane():
                         self.set_ap_mode("GUIDED")
 
                         # go away
-                        #self.goto(self.avoid(v2posX, posX, v2posY, posY, posZ)) # using avoid()
-                        self.goto(LocationGlobalRelative(34.0384535, -117.81742575, 0)) # using fixed point (very bottom of farm)
+                        # MAKE ANY CHANGES IN HERE
+                        self.goto(self.avoid(v2posX, posX, v2posY, posY, posZ)) # using avoid()
+                        #self.goto(LocationGlobalRelative(34.0384535, -117.81742575, 0)) # using fixed point (very bottom of farm)
                     break
                     
                 else: # TESTING ONLY; REMOVE LATER PLS
@@ -720,8 +729,8 @@ class Plane():
 
         #xAvoid = abs(x)/139 + self.pos_lat
         #yAvoid = abs(y)/111 + self.pos_lon
-        xAvoid = (abs(x) + (self.pos_lat * 139)) / 139
-        yAvoid = (abs(y) + (self.pos_lon * 111)) / 111
+        xAvoid = ((abs(x) + (self.pos_lat * 139)) / 139)
+        yAvoid = ((abs(y) + (self.pos_lon * 111)) / 111) * -1
         zAvoid = 15
         # print("avoidance WP = (%s"%xAvoid,", %s"%yAvoid,", %s)"%zAvoid)
         # print("go to avoidance waypoint")
@@ -805,17 +814,22 @@ class Plane():
             time.sleep(5.0)
 
     def receive_ADSB_data(self):
+        inactivityCounter = 0
         while True:
             print("In receive_ADSB_data function")
             msg = ser.readline().decode()
             print(msg)
 
             while not msg:
+                inactivityCounter += 1 # if other vehicle disconnects, clear its old data
                 print('waiting for xbee msg')
                 time.sleep(1)
                 msg = ser.readline().decode()
                 print(msg)
 
+                if inactivityCounter > 5:
+                    self.receive_msg = False
+            inactivityCounter = 0
             #print("msg!!!!!!!!!!!!\n")
             #print(msg)
 
