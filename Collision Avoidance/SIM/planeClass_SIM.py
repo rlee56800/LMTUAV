@@ -11,6 +11,8 @@ initialize plane = Plane(vehicle), so that you can use the object in your own pr
 """
 from asyncio.windows_events import NULL
 from operator import truediv
+
+from matplotlib.pyplot import switch_backend
 from dronekit import connect, VehicleMode, LocationGlobalRelative, Command, Battery, LocationGlobal, Attitude, LocationLocal
 from pymavlink import mavutil
 
@@ -507,7 +509,7 @@ class Plane():
 
             while not self.receive_msg:
                 # clear out old data so ownship doesn't avoid a ghost
-                if self.receive_lattitude:
+                if not self.receive_lattitude:
                     self.receive_lattitude = 0.0        #- [deg]    latitude
                     self.receive_longitude = 0.0        #- [deg]    longitude
                     self.receive_altitude = 0.0         #- [m]      altitude
@@ -607,7 +609,7 @@ class Plane():
                         # if plane WAS going toward mission, but detected a collision
                         #print('WEEEEEEEEEEEEE AREEEEEEEEEEEEEEEEEEEEEEEE COLLIDINGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG')
                         self.all_clear = False
-                        self.counter = 0
+                        self.counter = 0 # randomly returns to mission; needs a concrete all-clear
                         # TODO: find new avoid point if another collision is predicted??
 
                         #print("~~~~~~Change to GUIDE Mode~~~~~~~~")
@@ -615,7 +617,7 @@ class Plane():
 
                         # go away
                         # MAKE ANY CHANGES IN HERE
-                        self.goto(self.avoid(v2posX, posX, v2posY, posY, posZ)) # using avoid()
+                        self.goto(self.avoid(v2posX, posX, v2posY, posY, v2velX, v2velY)) # using avoid()
                         #self.goto(LocationGlobalRelative(34.0384535, -117.81742575, 0)) # using fixed point (very bottom of farm)
                     break
                     
@@ -699,7 +701,7 @@ class Plane():
         return y
 
 
-    def avoid(self, intruderX, ownX, intruderY, ownY, distZ):
+    def avoid(self, intruderX, ownX, intruderY, ownY, intVx, intVy):
         h = abs(abs(intruderX) - abs(ownX)) # distance between x of both
         k = abs(abs(intruderY) - abs(ownY)) # distance between y of both
         a = 3 # constant value dependent on intruder velocity
@@ -730,10 +732,21 @@ class Plane():
         #xAvoid = abs(x)/139 + self.pos_lat
         #yAvoid = abs(y)/111 + self.pos_lon
         xAvoid = ((abs(x) + (self.pos_lat * 139)) / 139)
-        yAvoid = ((abs(y) + (self.pos_lon * 111)) / 111) * -1
+        yAvoid = ((abs(y) + (self.pos_lon * 111)) / 111)
         zAvoid = 15
         # print("avoidance WP = (%s"%xAvoid,", %s"%yAvoid,", %s)"%zAvoid)
         # print("go to avoidance waypoint")
+
+        if intVx > 0: # if vx positive
+            xAvoid = abs(xAvoid) * -1
+        else: # vx is negative
+            xAvoid = abs(xAvoid)
+        
+        if intVy > 0: # if vy positive
+            yAvoid = abs(yAvoid) * -1
+        else: # vy negative
+            yAvoid = abs(yAvoid)
+
         wpAvoid = LocationGlobalRelative(xAvoid, yAvoid, zAvoid)
         return wpAvoid
         #return [xAvoid, yAvoid, zAvoid] # note: insert_avoidWP requires a list of x, y, z values
@@ -747,6 +760,9 @@ class Plane():
         lastGPS = [0,0]
         secondTolastGPS = [0,0]
 
+        for item in list(self.mission):
+            f.write(str(item) + '\n')
+        
         while self.is_armed():
             timeNow = str(datetime.datetime.now())
             f.write(timeNow + " : " + "~~~~~~~~~~New Point~~~~~~~~~~~~" + '\n')
@@ -822,13 +838,13 @@ class Plane():
 
             while not msg:
                 inactivityCounter += 1 # if other vehicle disconnects, clear its old data
+                if inactivityCounter > 5:
+                    self.receive_msg = False
+
                 print('waiting for xbee msg')
                 time.sleep(1)
                 msg = ser.readline().decode()
                 print(msg)
-
-                if inactivityCounter > 5:
-                    self.receive_msg = False
             inactivityCounter = 0
             #print("msg!!!!!!!!!!!!\n")
             #print(msg)
