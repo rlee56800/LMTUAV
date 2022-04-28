@@ -1,8 +1,9 @@
+# TODO: graph waypoints (find + print wp to log output)
+
 from tkinter import *
 import UAV
 
 master = Tk(className="Graph Options")
-
 
 ########## VARS ########## 
 textbox_width = 70
