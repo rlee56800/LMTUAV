@@ -878,7 +878,7 @@ class Plane():
 
 
     def run(self):
-        t1 = threading.Thread(target=self.save_to_file, daemon=True)
+        t1 = threading.Thread(target=self.save_to_file, daemon=True) # flight test: comment out daemon=true
         t2 = threading.Thread(target=self.send_ADSB_data, daemon=True)
         t3 = threading.Thread(target=self.receive_ADSB_data, daemon=True)
         t4 = threading.Thread(target=self.prediction, daemon=True)
