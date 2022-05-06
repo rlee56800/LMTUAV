@@ -13,7 +13,7 @@ def splitter(input_str: str, index: int):
     i = i[index]
     return float(i)
 
-def main(graph_name: str, file_name: str, map_intruder: int, predicted_indices = []):
+def main(graph_name: str, file_name: str, map_intruder: int, predicted_indices = [], plotted_point = []):
     ########## Graphing ##########
     longitude = []
     lattitude = []
@@ -99,6 +99,10 @@ def main(graph_name: str, file_name: str, map_intruder: int, predicted_indices =
         for i in predicted_indices: # predictive paths; comment out for less hairy graph
             #plt.scatter(future_pos_x[i], future_pos_y[i]) # scatter plot dots
             plt.plot(future_pos_y[i], future_pos_x[i]) # line
+            
+    if plotted_point:
+        for point in plotted_point:
+            plt.scatter(point[0], point[1])
 
     plt.ticklabel_format(useOffset=False) # Display axes correctly
 
