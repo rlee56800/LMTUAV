@@ -15,6 +15,7 @@ def splitter(input_str: str, index: int):
 
 def main(graph_name: str, file_name: str, map_intruder: int, predicted_indices = [], plotted_point = []):
     ########## Graphing ##########
+    waypoint = []
     longitude = []
     lattitude = []
     future_pos_x = []
@@ -27,7 +28,12 @@ def main(graph_name: str, file_name: str, map_intruder: int, predicted_indices =
 
     with open(file_name) as file:
         for line in file:
-            if 'Current lattitude' in line:
+            if 'MISSION_ITEM' in line:
+                cur = line.split()
+                for char in cur:
+                    print(char)
+                
+            elif 'Current lattitude' in line:
                 cur = splitter(line, 6)
                 if cur != 0:
                     lattitude.append(cur)
@@ -102,7 +108,7 @@ def main(graph_name: str, file_name: str, map_intruder: int, predicted_indices =
             
     if plotted_point:
         for point in plotted_point:
-            plt.scatter(point[0], point[1])
+            plt.scatter(float(point[0]), float(point[1]))
 
     plt.ticklabel_format(useOffset=False) # Display axes correctly
 
