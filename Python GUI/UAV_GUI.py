@@ -1,6 +1,7 @@
 # TODO: graph waypoints (find + print wp to log output)
 
 from tkinter import *
+from tkinter import colorchooser
 import UAV
 
 master = Tk(className="Graph Options")
@@ -16,7 +17,6 @@ plot_points = StringVar(master)
 map_intruder = IntVar(master)
 pp_list = []
 
-tester2 = IntVar(master)
 # https://www.geeksforgeeks.org/python-tkinter-checkbutton-widget/
 
 ########## FUNCTIONS ########## 
@@ -48,10 +48,12 @@ def show_error(error_msg: str, error_msg2: str = ''):
     error.mainloop()
     
 def append_coord():
-    pp_list.append([plot_point_long.get(),plot_point_lat.get()])
-    print(pp_list)
+    if plot_point_long.get() and plot_point_lat.get():
+        color_code = colorchooser.askcolor(title="Choose color")
+        pp_list.append([plot_point_long.get(), plot_point_lat.get(), color_code[1]])
+        print(pp_list)
 
-########## GUI ########## 
+########## GUI ##########
 
 # graph_name: str
 Label(master, text = 'Title of Graph:').grid(column=0, row=1, padx=5, pady=5)
@@ -68,30 +70,38 @@ Label(master, text = 'Index of Point(s) Showing Predicted Path:\n(separate with 
 e_indices = Entry(master, width=textbox_width, textvariable=predicted_indices)
 e_indices.grid(column=1, row=3, padx=5, pady=5)
 
-# plot points: list[int]
-Label(master, text = 'Plot Points').grid(column=0, row=4, padx=5, pady=5)
+'''
+Plot points begin
+'''
+# plot points
+label_frame = LabelFrame(master, text="Plot Points")
+label_frame.grid(row=4, columnspan=2, ipadx=70, ipady=2)
 
 # longitude: list[int]
-Label(master, text = 'Longitude').grid(column=0, row=5, padx=5, pady=5)
-e_pp_longitude = Entry(master, width=textbox_width, textvariable=plot_point_long)
-e_pp_longitude.grid(column=1, row=5, padx=5, pady=5)
+Label(label_frame, text = 'Longitude').grid(column=0, row=0, padx=5, pady=5)
+e_pp_longitude = Entry(label_frame, width=textbox_width, textvariable=plot_point_long)
+e_pp_longitude.grid(column=1, row=0, padx=5, pady=5)
 
-#lattitude: list[int]
-Label(master, text = 'Lattitude').grid(column=0, row=6, padx=5, pady=5)
-e_pp_lattitude = Entry(master, width=textbox_width, textvariable=plot_point_lat)
-e_pp_lattitude.grid(column=1, row=6, padx=5, pady=5)
+# lattitude: list[int]
+Label(label_frame, text = 'Lattitude').grid(column=0, row=1, padx=5, pady=5)
+e_pp_lattitude = Entry(label_frame, width=textbox_width, textvariable=plot_point_lat)
+e_pp_lattitude.grid(column=1, row=1, padx=5, pady=5)
+
+# add point button
+test = Button(label_frame, text='Add Point', command=append_coord).grid(column = 3, row=1)
 
 
-test = Button(master, text='Add Point', command=append_coord).grid(column = 0, row=7)
-
+'''
+Plot points end
+'''
 
 # map_intruder: bool
 # checkbox for whether or not intruder is mapped
 e_intruder = Checkbutton(master, text = 'Map intruder vehicle?', variable = map_intruder, onvalue=1, offvalue=0)
-e_intruder.grid(column=0, row=8, padx=5, pady=5)
+e_intruder.grid(column=0, row=5, padx=5, pady=5)
 
 # confirmation button
-confirm = Button(master, text='Create Graph', command=enter_info).grid(column = 0, row=9)
+confirm = Button(master, text='Create Graph', command=enter_info).grid(column = 0, row=6)
 
 
 master.mainloop()

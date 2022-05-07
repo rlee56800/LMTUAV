@@ -108,7 +108,7 @@ def main(graph_name: str, file_name: str, map_intruder: int, predicted_indices =
             
     if plotted_point:
         for point in plotted_point:
-            plt.scatter(float(point[0]), float(point[1]))
+            plt.scatter(float(point[0]), float(point[1]), c=point[2])
 
     plt.ticklabel_format(useOffset=False) # Display axes correctly
 
