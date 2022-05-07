@@ -2,6 +2,7 @@
 
 from tkinter import *
 from tkinter import colorchooser
+from tkinter import ttk
 import UAV
 
 master = Tk(className="Graph Options")
@@ -15,7 +16,9 @@ plot_point_long = StringVar(master)
 plot_point_lat = StringVar(master)
 plot_points = StringVar(master)
 map_intruder = IntVar(master)
+predicted_collision_point = StringVar(master)
 pp_list = []
+pc_list = []
 
 # https://www.geeksforgeeks.org/python-tkinter-checkbutton-widget/
 
@@ -34,7 +37,7 @@ def enter_info():
         pi_list = []
 
     try:
-        UAV.main(graph_name.get(), file_name.get(), map_intruder.get(), pi_list, pp_list)
+        UAV.main(graph_name.get(), file_name.get(), map_intruder.get(), pi_list, pp_list, pc_list)
     except FileNotFoundError:
         show_error('Please enter a VALID file name', '(including parent folder and .txt on the end and excluding quotation marks)')
     except IndexError:
@@ -55,6 +58,22 @@ def append_coord():
         e_pp_longitude.delete(0, END)
         e_pp_lattitude.delete(0, END)
 
+def get_combo_values():
+    if file_name.get():
+        a['state']='readonly'
+        lst = UAV.predicted_collision_points_dropdown(file_name.get())
+        a.config(value=lst)
+    else:
+        a['state'] = 'disabled'
+
+def add_collision_point():
+    pc_list.append(predicted_collision_point.get())
+    print(pc_list)
+
+def remove_collision_point():
+    pc_list.remove(predicted_collision_point.get())
+    print(pc_list)
+
 ########## GUI ##########
 
 # graph_name: str
@@ -63,47 +82,64 @@ e_graph = Entry(master, width=textbox_width, textvariable=graph_name)
 e_graph.grid(column=1, row=1, padx=5, pady=5)
 
 # file_name: str
-Label(master, text = 'Name of File:').grid(column=0, row=2, padx=5, pady=5)
+Label(master, text='Name of File:').grid(column=0, row=2, padx=5, pady=5)
 e_file = Entry(master, width=textbox_width, textvariable=file_name)
 e_file.grid(column=1, row=2, padx=5, pady=5)
 
 # predicted_indices: list[int]
-Label(master, text = 'Index of Point(s) Showing Predicted Path:\n(separate with spaces)').grid(column=0, row=3, padx=5, pady=5)
+Label(master, text='Index of Point(s) Showing Predicted Path:\n(separate with spaces)').grid(column=0, row=3, padx=5, pady=5)
 e_indices = Entry(master, width=textbox_width, textvariable=predicted_indices)
 e_indices.grid(column=1, row=3, padx=5, pady=5)
 
 '''
 Plot points begin
 '''
-# plot points
-label_frame = LabelFrame(master, text="Plot Points")
-label_frame.grid(row=4, columnspan=2, ipadx=70, ipady=2)
+plot_points_frame = LabelFrame(master, text="Plot Points")
+plot_points_frame.grid(row=4, columnspan=3, ipadx=30, ipady=2)
 
 # longitude: list[int]
-Label(label_frame, text = 'Longitude').grid(column=0, row=0, padx=5, pady=5)
-e_pp_longitude = Entry(label_frame, width=textbox_width, textvariable=plot_point_long)
+Label(plot_points_frame, text='Longitude').grid(column=0, row=0, padx=5, pady=5)
+e_pp_longitude = Entry(plot_points_frame, width=textbox_width, textvariable=plot_point_long)
 e_pp_longitude.grid(column=1, row=0, padx=5, pady=5)
 
 # lattitude: list[int]
-Label(label_frame, text = 'Lattitude').grid(column=0, row=1, padx=5, pady=5)
-e_pp_lattitude = Entry(label_frame, width=textbox_width, textvariable=plot_point_lat)
+Label(plot_points_frame, text='Lattitude').grid(column=0, row=1, padx=5, pady=5)
+e_pp_lattitude = Entry(plot_points_frame, width=textbox_width, textvariable=plot_point_lat)
 e_pp_lattitude.grid(column=1, row=1, padx=5, pady=5)
 
 # add point button
-test = Button(label_frame, text='Add Point', command=append_coord).grid(column = 3, row=1)
-
-
+add_point = Button(plot_points_frame, text='Add Point', command=append_coord).grid(column = 3, row=1)
 '''
 Plot points end
+'''
+
+'''
+Predicted collision points begin
+'''
+predicted_collision_frame = LabelFrame(master, text="Predicted Collision Points")
+predicted_collision_frame.grid(row=5, columnspan=2, ipadx=0, ipady=2)
+
+Label(predicted_collision_frame, text='Point List').grid(column=0, row=0, padx=5, pady=5)
+
+a = ttk.Combobox(predicted_collision_frame, textvariable=predicted_collision_point, state='readonly', postcommand=get_combo_values, width=textbox_width)
+a.grid(column=1, row=0, padx=5, pady=5)
+
+add_predicted_col_point = Button(predicted_collision_frame, text='Add Point', command=add_collision_point)
+add_predicted_col_point.grid(column=2, row=0, padx=5, pady=5)
+
+add_predicted_col_point = Button(predicted_collision_frame, text='Delete', command=remove_collision_point)
+add_predicted_col_point.grid(column=3, row=0, padx=5, pady=5)
+'''
+Predicted collision points begin
 '''
 
 # map_intruder: bool
 # checkbox for whether or not intruder is mapped
 e_intruder = Checkbutton(master, text = 'Map intruder vehicle?', variable = map_intruder, onvalue=1, offvalue=0)
-e_intruder.grid(column=0, row=5, padx=5, pady=5)
+e_intruder.grid(column=0, row=6, padx=5, pady=5)
 
 # confirmation button
-confirm = Button(master, text='Create Graph', command=enter_info).grid(column = 0, row=6)
+confirm = Button(master, text='Create Graph', command=enter_info).grid(column = 0, row=7)
 
 
 master.mainloop()

@@ -10,10 +10,10 @@ show_intruder = 0
 
 def splitter(input_str: str, index: int):
     i = input_str.split()
-    i = i[index]
+    i = i[index].replace(',','')
     return float(i)
 
-def main(graph_name: str, file_name: str, map_intruder: int, predicted_indices = [], plotted_point = []):
+def main(graph_name: str, file_name: str, map_intruder: int, predicted_indices = [], plotted_point = [], predicted_collision_point = []):
     ########## Graphing ##########
     waypoint = []
     longitude = []
@@ -26,13 +26,17 @@ def main(graph_name: str, file_name: str, map_intruder: int, predicted_indices =
     intruder_longitude = []
     intruder_lattitude = []
 
+    waypoint_latitude = []
+    waypoint_longitude = []
+
     with open(file_name) as file:
         for line in file:
             if 'MISSION_ITEM' in line:
-                cur = line.split()
-                for char in cur:
-                    print(char)
-                
+                cur_lat = splitter(line, 36)
+                cur_lon = splitter(line, 39)
+                if cur_lat != 0.0 and cur_lon != 0.0:
+                    waypoint_latitude.append(cur_lat)
+                    waypoint_longitude.append(cur_lon)
             elif 'Current lattitude' in line:
                 cur = splitter(line, 6)
                 if cur != 0:
@@ -71,14 +75,17 @@ def main(graph_name: str, file_name: str, map_intruder: int, predicted_indices =
 
     # for current vehicle
     #plt.scatter(lattitude[1:], longitude[1:], color='black') # Creates scatter plot (dots)
-    plt.plot(longitude[1:], lattitude[1:], color='black') # Creates line
+    plt.plot(longitude[1:], lattitude[1:], color='black', zorder=1) # Creates line
 
     # for intruder vehicle
     if map_intruder:
         #print(len(intruder_lattitude), len(intruder_longitude))
         #plt.scatter(intruder_lattitude, intruder_longitude, color='red') # Creates scatter plot (dots)
-        plt.plot(intruder_longitude, intruder_lattitude, color='red') # Creates line
+        plt.plot(intruder_longitude, intruder_lattitude, color='red', zorder=1) # Creates line
         # throw error if either are empty
+
+    for i in range(len(waypoint_latitude)):
+        plt.scatter(waypoint_longitude[i], waypoint_latitude[i], marker='*', zorder=2)
 
     # TESTING SPACE
     # plt.scatter(-117.whatever, 34.whatever, color = 'green')
@@ -108,7 +115,31 @@ def main(graph_name: str, file_name: str, map_intruder: int, predicted_indices =
             
     if plotted_point:
         for point in plotted_point:
-            plt.scatter(float(point[0]), float(point[1]), c=point[2])
+            plt.scatter(float(point[0]), float(point[1]), c=point[2], zorder=2)
+
+    counter = 0
+    set_id = 0
+    marker_lst = ['o', 'X']
+    color_lst = ['#f44336', '#8fce00', '#2986cc', '#8300ff']
+
+    if predicted_collision_point:
+        for point in predicted_collision_point:
+            lst = point.split()
+            point_id = 0
+            for i in range(len(lst)):
+                counter += 1
+                if counter == 2 and point_id != 2:
+                    point_id += 1
+                    plt.scatter(float(lst[i].replace('{','').replace('}','')),
+                                float(lst[i-1].replace('{','').replace('}','')),
+                                marker=marker_lst[0], c=color_lst[set_id], zorder=2)
+                    counter = 0
+                elif counter == 2 and point_id == 2:
+                    plt.scatter(float(lst[i].replace('{', '').replace('}', '')),
+                                float(lst[i - 1].replace('{', '').replace('}', '')),
+                                marker=marker_lst[1], c=color_lst[set_id], zorder=2)
+                    counter = 0
+            set_id += 1
 
     plt.ticklabel_format(useOffset=False) # Display axes correctly
 
@@ -117,6 +148,21 @@ def main(graph_name: str, file_name: str, map_intruder: int, predicted_indices =
     plt.xlabel('Longitude')
 
     plt.show()
+
+def predicted_collision_points_dropdown(file_name: str):
+    predicted_collision_points = []
+
+    with open(file_name) as file:
+        file_content = file.readlines()
+        for i in range(len(file_content)):
+            if 'Predicted crash lattitude' in file_content[i]:
+                predicted_collision_points.append([
+                    [(file_content[i - 6].split())[6], (file_content[i - 5].split())[6]],
+                    [(file_content[i - 2].split())[6], (file_content[i - 1].split())[6]],
+                    [(file_content[i].split())[6], (file_content[i + 1].split())[6]]
+                ])
+
+    return predicted_collision_points
 
 
 if __name__ == '__main__':
