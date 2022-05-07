@@ -52,6 +52,8 @@ def append_coord():
         color_code = colorchooser.askcolor(title="Choose color")
         pp_list.append([plot_point_long.get(), plot_point_lat.get(), color_code[1]])
         print(pp_list)
+        e_pp_longitude.delete(0, END)
+        e_pp_lattitude.delete(0, END)
 
 ########## GUI ##########
 
