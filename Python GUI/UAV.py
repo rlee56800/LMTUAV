@@ -85,7 +85,7 @@ def main(graph_name: str, file_name: str, map_intruder: int, predicted_indices =
         # throw error if either are empty
 
     for i in range(len(waypoint_latitude)):
-        plt.scatter(waypoint_longitude[i], waypoint_latitude[i], marker='*', zorder=2)
+        plt.scatter(waypoint_longitude[i], waypoint_latitude[i], marker='*', c="green", zorder=2)
 
     # TESTING SPACE
     # plt.scatter(-117.whatever, 34.whatever, color = 'green')
@@ -163,7 +163,6 @@ def predicted_collision_points_dropdown(file_name: str):
                 ])
 
     return predicted_collision_points
-
 
 if __name__ == '__main__':
     main(title_of_graph, name_of_file, show_intruder, show_predicted)
