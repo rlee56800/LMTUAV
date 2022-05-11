@@ -31,7 +31,7 @@ import serial
 
 ser = serial.Serial(
 
-    port='COM3',
+    port='COM4',#3',
     baudrate = 9600,
     parity=serial.PARITY_NONE,
     stopbits=serial.STOPBITS_ONE,
@@ -102,7 +102,8 @@ class Plane():
         self.receive_lattitude = 0.0        #- [deg]    latitude
         self.receive_longitude = 0.0        #- [deg]    longitude
         self.receive_altitude = 0.0         #- [m]      altitude
-        self.receive_velocity = []          #- [m/s]    velocity of craft; [vx (+ north, - south), vy (+ east, - west), vz (+ up, - down)]
+        self.receive_velocity = [0.0, 0.0, 0.0]
+                                            #- [m/s]    velocity of craft; [vx (+ north, - south), vy (+ east, - west), vz (+ up, - down)]
         self.receive_airspeed = 0.0         #- [m/s]    airspeed
 
         # Collision avoidance variables
@@ -513,7 +514,7 @@ class Plane():
                     self.receive_lattitude = 0.0        #- [deg]    latitude
                     self.receive_longitude = 0.0        #- [deg]    longitude
                     self.receive_altitude = 0.0         #- [m]      altitude
-                    self.receive_velocity = []          #- [m/s]    velocity of craft
+                    self.receive_velocity = [0.0, 0.0, 0.0]          #- [m/s]    velocity of craft
                     self.receive_airspeed = 0.0         #- [m/s]    airspeed
                 pass
 
