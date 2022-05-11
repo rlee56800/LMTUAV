@@ -3,6 +3,8 @@
 from tkinter import *
 from tkinter import colorchooser
 from tkinter import ttk
+from tkinter import filedialog as fd
+from tkinter.messagebox import showinfo
 import UAV
 
 master = Tk(className="Graph Options")
@@ -35,6 +37,8 @@ def enter_info():
             show_error('Only numbers may be indices')
     else:
         pi_list = []
+
+    file_name.set(file_name.get().replace('(','').replace(')','').replace("'","").replace(',','').replace('{','').replace('}','').replace('/','\\'))
 
     try:
         UAV.main(graph_name.get(), file_name.get(), map_intruder.get(), pi_list, pp_list, pc_list)
@@ -74,6 +78,19 @@ def remove_collision_point():
     pc_list.remove(predicted_collision_point.get())
     print(pc_list)
 
+def select_files():
+    filetypes = (
+        ('text files', '*.txt'),
+        ('All files', '*.*')
+    )
+
+    filename = fd.askopenfilenames(
+        title='Open files',
+        initialdir='/',
+        filetypes=filetypes)
+
+    file_name.set(filename)
+
 ########## GUI ##########
 
 # graph_name: str
@@ -85,6 +102,14 @@ e_graph.grid(column=1, row=1, padx=5, pady=5)
 Label(master, text='Name of File:').grid(column=0, row=2, padx=5, pady=5)
 e_file = Entry(master, width=textbox_width, textvariable=file_name)
 e_file.grid(column=1, row=2, padx=5, pady=5)
+
+open_button = ttk.Button(
+    master,
+    text='Open Files',
+    command=select_files
+)
+
+open_button.grid(column=2, row=2, padx=5, pady=5)
 
 # predicted_indices: list[int]
 Label(master, text='Index of Point(s) Showing Predicted Path:\n(separate with spaces)').grid(column=0, row=3, padx=5, pady=5)
@@ -117,7 +142,7 @@ Plot points end
 Predicted collision points begin
 '''
 predicted_collision_frame = LabelFrame(master, text="Predicted Collision Points")
-predicted_collision_frame.grid(row=5, columnspan=2, ipadx=0, ipady=2)
+predicted_collision_frame.grid(row=5, columnspan=3, ipadx=0, ipady=2)
 
 Label(predicted_collision_frame, text='Point List').grid(column=0, row=0, padx=5, pady=5)
 
