@@ -992,8 +992,8 @@ class Plane():
         while True:
             print("receiving")
             self.receive_msg = True
-            self.receive_lattitude = 34.0431831 #34.0608370 
-            self.receive_longitude = -117.8115892 # -117.8134
+            self.receive_lattitude = 34.0432587 #34.0608370 
+            self.receive_longitude = -117.8115302 # -117.8134
             self.receive_velocity = [.01, .01, self.vz]
 
             # print("intruder is at lat ",self.receive_lattitude)
