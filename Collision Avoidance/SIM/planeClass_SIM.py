@@ -11,8 +11,8 @@ initialize plane = Plane(vehicle), so that you can use the object in your own pr
 """
 # v9 + simulated intruder
 # LOOK COR CHANGE BEFORE FLIGHT
-# adjusting prediction() function
-# took out distX/Y parameters of collisionPredictedCompare
+# adjusting collisionPredictedCompare to just be differnece in distances
+# having avoid only be called while distance is small
 
 from asyncio.windows_events import NULL
 from ctypes.wintypes import WPARAM
@@ -528,19 +528,7 @@ class Plane():
                     self.receive_airspeed = 0.0         #- [m/s]    airspeed
                 pass
 
-            # print('***** PREDICTION *****')
-            # print("receive_lattitude: ",self.receive_lattitude)
-            # print("receive_longitude: ",self.receive_longitude)
-            # print("ownship_lattitude: ",self.pos_lat)
-            # print("ownship_longitude: ",self.pos_lon)
-
-            #time.sleep(3)
-
-            #collisionPredicted = False
-
-            XAvoidTolerance = 10.0# 10.0  #CHANGE BACK TO 40
-            YAvoidTolerance = 40.0# 10.0
-            ZAvoidTolerance = 40.0# 10.0
+            XAvoidTolerance = 0.1 #10.0
 
             velX = float(self.vx) # vx speed (pos -> north, neg -> south)
             velY = float(self.vy) #- [m/s]  # vy speed (pos -> east, neg -> west) 
@@ -595,14 +583,34 @@ class Plane():
                     self.goto(self.avoid(v2posX, posX, v2posY, posY, v2velX, v2velY)) # using avoid()
                     print("prediction: avoiding for 5s")
                     self.avoiding = True
-                    time.sleep(10)
+                    n = 0
+                    while (abs(self.receive_lattitude-self.pos_lat)*111 < XAvoidTolerance and abs(self.receive_longitude-self.pos_lon)*139):
+                        time.sleep(1)
+                        n+=1
+                        print("called while", n, "times")
                     print("end sleep")
                     self.all_clear = True
                     self.avoiding = False
                     self.set_ap_mode("AUTO") # return to mission
                     print("start sleep 2")
-                    time.sleep(5)
+                    time.sleep(2) #5
                     print("end sleep 2")
+
+
+                    # # working version
+                    # # just avoids for 10 sec
+                    # self.goto(self.avoid(v2posX, posX, v2posY, posY, v2velX, v2velY)) # using avoid()
+                    # print("prediction: avoiding for 5s")
+                    # self.avoiding = True
+                    # time.sleep(10)
+                    # print("end sleep")
+                    # self.all_clear = True
+                    # self.avoiding = False
+                    # self.set_ap_mode("AUTO") # return to mission
+                    # print("start sleep 2")
+                    # time.sleep(2) #5
+                    # print("end sleep 2")
+
                     
                     # self.goto(LocationGlobalRelative(34.0384535, -117.81742575, 0)) # using fixed point (very bottom of farm)
                     
@@ -629,7 +637,7 @@ class Plane():
             if not self.all_clear: # currently going toward AP
                 self.counter = self.counter + 1
             #print('^^^COUNTER: %f' %self.counter)
-            time.sleep(5)
+            time.sleep(2) #5
             #print("end prediction function")
 
     def getFutureDistance(self, time, ownPosX, ownVelX, targPosX, targetVelX):
@@ -648,9 +656,11 @@ class Plane():
         # vector math (make function later)
         ownX = self.pos_lon * 139
         ownY = self.pos_lat * 111
+        print("own: (", ownX, ownY, ")")
 
         intrX = self.receive_longitude * 139
         intrY = self.receive_lattitude * 111
+        print("intr: (", intrX, intrY, ")")
 
         # put into if case 2 statement
         self.avoidwpX = intrX 
@@ -670,18 +680,17 @@ class Plane():
         # thank you stack overflow
         # https://stackoverflow.com/questions/2931573/determining-if-two-rays-intersect
 
-        # original
-        # dx = (self.receive_lattitude - self.pos_lat) * 111 # multiply for conversion to meters
-        # dy = (self.receive_longitude - self.pos_lon) * 139 # multiply for conversion to meters
-        # det = self.receive_velocity[0] * self.vy - self.receive_velocity[1] * self.vx
-
         # lat/lon fix ? 
         dx = (self.receive_longitude - self.pos_lon) * 139 
         dy = (self.receive_lattitude - self.pos_lat) * 111 
         det = self.receive_velocity[0] * self.vy - self.receive_velocity[1] * self.vx
 
+        print("Distance between own/intr x:", ownX - intrX)
+        print("Distance between own/intr y:", ownY - intrY)
+
         # stationary:
-        if abs(self.receive_velocity[0]) < 0.1 and abs(self.receive_velocity[1]) < 0.1 and abs(dx) < XAvoidTolerance and abs(dy) < XAvoidTolerance:
+        # if abs(self.receive_velocity[0]) < 0.1 and abs(self.receive_velocity[1]) < 0.1 and abs(dx) < XAvoidTolerance and abs(dy) < XAvoidTolerance:
+        if abs(dx) < XAvoidTolerance and abs(dy) < XAvoidTolerance:
             print("STATIONARY OBJECT DETECTED")
             print("velocity:", self.vx, self.vy)
             self.crash_lat = self.receive_lattitude
@@ -937,7 +946,7 @@ class Plane():
 
             #Send out ADSB data
             ser.write(msg.encode())
-            time.sleep(5.0)
+            time.sleep(2.0) #5
             #print("end send ADSB function")
 
     def receive_ADSB_data(self):
@@ -992,9 +1001,9 @@ class Plane():
         while True:
             print("receiving")
             self.receive_msg = True
-            self.receive_lattitude = 34.0432587 #34.0608370 
-            self.receive_longitude = -117.8115302 # -117.8134
-            self.receive_velocity = [.01, .01, self.vz]
+            self.receive_lattitude = 34.0431831 #34.0608370 
+            self.receive_longitude = -117.8115892 # -117.8134
+            self.receive_velocity = [-self.vy, self.vx, self.vz]
 
             # print("intruder is at lat ",self.receive_lattitude)
             # print("intruder is at lon", self.receive_longitude)
