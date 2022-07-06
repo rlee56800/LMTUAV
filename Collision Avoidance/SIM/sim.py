@@ -1,5 +1,5 @@
 from planeClass_SIM import *
-from dronekit import connect, VehicleMode, LocationGlobalRelative, Command, Battery, LocationGlobal, Attitude
+from dronekit import connect, VehicleMode, LocationGlobalRelative,  Battery, LocationGlobal, Attitude
 from pymavlink import mavutil
 
 import time
@@ -22,8 +22,9 @@ if __name__ == '__main__':
     connection_string = args.connect   
     
     #Establishing Connection With PIXHAWK
+    #THIS IS TELEMETRY - DO NOT CHANGE
     #connection_string = '/dev/ttyACM0'	  #Linux: use 'dmesg | grep tty" to find the correct port
-    #connection_string = 'COM9'#'COM5'     #Windows: check Device manager for the correct port 
+    #connection_string = 'COM10'#'COM5'     #Windows: check Device manager for the correct port 
     
     #-- Create the object
     plane = Plane(connection_string)
@@ -31,18 +32,14 @@ if __name__ == '__main__':
     
     #Simulation only -- Arm and takeoff for
     if not plane.is_armed(): plane.arm_and_takeoff(altitude=10)
+
+    plane.save_to_file()
     
     plane.run()
     
-    #avoidWP = [34.0458323, -117.7980, 0]  
-    while plane.is_armed():
-    #     if(plane.current_WP_number() == 3):
-    #         plane.insert_avoidWP(plane.current_WP_number(), avoidWP)
-    #         #print("current_WP_number: ", plane.current_WP_number())
-    #         time.sleep(1)
-    #     #print("current_WP_number: ", plane.current_WP_number())   
-        time.sleep(1) # just so the main thread doesn't end and printouts keep printing out :)
-    
+    while plane.is_armed(): 
+        time.sleep(1)
+
     plane.mission.clear()
     
 
