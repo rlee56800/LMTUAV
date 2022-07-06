@@ -560,8 +560,8 @@ class Plane():
                 f = open(outputFile, "a")
                 f.write("************************************************************\n")
                 f.write("                  Predicted Collision\n")
-                f.write("self position: (" + str(posX) + ", " + str(posY) + ")\n")  
-                f.write("intruder position: (" + str(v2posX) + ", " + str(v2posY) + ")\n")
+                #f.write("self position: (" + str(posX) + ", " + str(posY) + ")\n")  
+                #f.write("intruder position: (" + str(v2posX) + ", " + str(v2posY) + ")\n")
                 f.write("collision predicted at (" + str(self.crash_lon*139) + ", " + str(self.crash_lat*111) + ")\n")
                 f.write("************************************************************\n\n")
                 f.close()
@@ -592,6 +592,7 @@ class Plane():
                         n+=1
                         print("called while", n, "times")
                         f.write("called while " + str(n) + " times\n")
+                    f.write("\n")
                     f.close()
                     print("end sleep")
                     self.all_clear = True
@@ -706,7 +707,8 @@ class Plane():
                 print("STATIONARY OBJECT DETECTED")
                 f.write("stationary object detected\n")
             print("velocity:", self.vx, self.vy)
-            f.write("velocity: (" + str(self.vx) + "m/s, " + str(self.vy) + "m/s)\n")
+            f.write("own velocity: (" + str(self.vx) + "m/s, " + str(self.vy) + "m/s)\n")
+            f.write("intruder velocity: (" + str(self.receive_velocity[0]) + "m/s, " + str(self.receive_velocity[1]) + "m/s)\n")
             self.crash_lat = self.receive_lattitude
             self.crash_lon = self.receive_longitude
             dist_self = ( ((((self.crash_lat-self.pos_lat)*111)**2) + (((self.crash_lon-self.pos_lon)*139)**2))**(1/2) ) # distance collision is from self
