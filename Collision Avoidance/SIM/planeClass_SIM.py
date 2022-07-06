@@ -9,10 +9,9 @@ initialize plane = Plane(vehicle), so that you can use the object in your own pr
 
 
 """
-# v9 + simulated intruder
-# LOOK COR CHANGE BEFORE FLIGHT
-# adjusting collisionPredictedCompare to just be differnece in distances
-# having avoid only be called while distance is small
+# adjusting log files
+# ******************good for flight testing*********************
+# *****may want to avoid for set time for first flight test*****
 
 from asyncio.windows_events import NULL
 from ctypes.wintypes import WPARAM
@@ -45,6 +44,10 @@ ser = serial.Serial(
     bytesize=serial.EIGHTBITS,
     timeout=1
 )
+
+shortDate = datetime.datetime.today().strftime('%Y_%m_%d')
+outputFile = "log_output_" + shortDate + ".txt"
+f = open(outputFile, "a")
 
 class Plane():
 
@@ -550,19 +553,18 @@ class Plane():
             if collisionPredicted:
                 print("************************************************************")
                 print("                  Predicted Collision")
-                # original            (lon, lat)
-                #print("self position: [%f, %f]"%(posX/139, posY/111))  
-                #print("intruder position: [%f, %f]"%(v2posX/139, v2posY/111))
-
-                #lat/lon fix ? this is just if you want (lon,lat) or (lat,lon)
-                # print("self position: [%f, %f]"%(posY/111, posX/139))  
-                # print("intruder position: [%f, %f]"%(v2posY/111, v2posX/139))
-                # print("collision predicted at (%f,"%self.crash_lat, " %f)"%self.crash_lon)
-                # print("************************************************************")
                 print("self position: [%f, %f]"%(posX, posY))  
                 print("intruder position: [%f, %f]"%(v2posX, v2posY))
                 print("collision predicted at (", self.crash_lon*139, self.crash_lat*111, ")")
                 print("************************************************************\n\n")
+                f = open(outputFile, "a")
+                f.write("************************************************************\n")
+                f.write("                  Predicted Collision\n")
+                f.write("self position: (" + str(posX) + ", " + str(posY) + ")\n")  
+                f.write("intruder position: (" + str(v2posX) + ", " + str(v2posY) + ")\n")
+                f.write("collision predicted at (" + str(self.crash_lon*139) + ", " + str(self.crash_lat*111) + ")\n")
+                f.write("************************************************************\n\n")
+                f.close()
                 self.will_crash = True
                 collisionPredicted = self.collisionPredictedCompare(XAvoidTolerance)
 
@@ -581,13 +583,16 @@ class Plane():
                     # self.avoiding = True
                     #while (abs(self.receive_lattitude-self.pos_lat) < XAvoidTolerance and abs(self.receive_longitude-self.pos_lon)):
                     self.goto(self.avoid(v2posX, posX, v2posY, posY, v2velX, v2velY)) # using avoid()
-                    print("prediction: avoiding for 5s")
+                    #print("prediction: avoiding for 5s")
                     self.avoiding = True
                     n = 0
+                    f = open(outputFile, "a")
                     while (abs(self.receive_lattitude-self.pos_lat)*111 < XAvoidTolerance and abs(self.receive_longitude-self.pos_lon)*139):
                         time.sleep(1)
                         n+=1
                         print("called while", n, "times")
+                        f.write("called while " + str(n) + " times\n")
+                    f.close()
                     print("end sleep")
                     self.all_clear = True
                     self.avoiding = False
@@ -617,12 +622,14 @@ class Plane():
                 #break
                     
             else: # TESTING ONLY; REMOVE LATER PLS
-                #self.all_clear = True
                 print("************************************************************")
                 print("                 No Predicted Collision")
-                # print("self position: [%f, %f]"%(posX, posY))
-                # print("intruder position: [%f, %f]"%(v2posX, v2posY))
                 print("************************************************************\n\n")
+                f = open(outputFile, "a")
+                f.write("************************************************************\n")
+                f.write("                 No Predicted Collision\n")
+                f.write("************************************************************\n\n")
+                f.close()
                 self.will_crash = False
                 
                 if self.counter >= 2: # 2 iterations of predict(); 10 seconds; set 2 to whatever
@@ -653,14 +660,17 @@ class Plane():
 
     #def collisionPredictedCompare(self, collisionPredicted, distX, distY, distZ, XAvoidTolerance, YAvoidTolerance, ZAvoidTolerance):
     def collisionPredictedCompare(self, XAvoidTolerance):
+        f = open(outputFile, "a")
         # vector math (make function later)
         ownX = self.pos_lon * 139
         ownY = self.pos_lat * 111
         print("own: (", ownX, ownY, ")")
+        f.write("own position (x,y): (" + str(ownX) + ", " + str(ownY) + ")\n")
 
         intrX = self.receive_longitude * 139
         intrY = self.receive_lattitude * 111
         print("intr: (", intrX, intrY, ")")
+        f.write("intr position (x,y): (" + str(intrX) + ", " + str(intrY) + ")\n")
 
         # put into if case 2 statement
         self.avoidwpX = intrX 
@@ -687,12 +697,16 @@ class Plane():
 
         print("Distance between own/intr x:", ownX - intrX)
         print("Distance between own/intr y:", ownY - intrY)
+        f.write("distance between own and intruder: (" + str(ownX-intrX) + ", " + str(ownY-intrY) + ")\n")
 
         # stationary:
         # if abs(self.receive_velocity[0]) < 0.1 and abs(self.receive_velocity[1]) < 0.1 and abs(dx) < XAvoidTolerance and abs(dy) < XAvoidTolerance:
         if abs(dx) < XAvoidTolerance and abs(dy) < XAvoidTolerance:
-            print("STATIONARY OBJECT DETECTED")
+            if abs(self.vx) < 0.5 and abs(self.vy) < 0.5:
+                print("STATIONARY OBJECT DETECTED")
+                f.write("stationary object detected\n")
             print("velocity:", self.vx, self.vy)
+            f.write("velocity: (" + str(self.vx) + "m/s, " + str(self.vy) + "m/s)\n")
             self.crash_lat = self.receive_lattitude
             self.crash_lon = self.receive_longitude
             dist_self = ( ((((self.crash_lat-self.pos_lat)*111)**2) + (((self.crash_lon-self.pos_lon)*139)**2))**(1/2) ) # distance collision is from self
@@ -702,6 +716,7 @@ class Plane():
             print("--------------------------------")
             #print("angle between self and intruder vectors:\n", angle)
             print("--------------------------------")
+            f.close()
             return True
 
         if det == 0:
@@ -748,20 +763,17 @@ class Plane():
             dist_self = ( ((((self.crash_lat-self.pos_lat)*111)**2) + (((self.crash_lon-self.pos_lon)*139)**2))**(1/2) ) # distance collision is from self
             dist_intr = ( ((((self.crash_lat-self.receive_lattitude)*111)**2) + (((self.crash_lon-self.receive_longitude)*139)**2))**(1/2) ) # distance collision is from intruder
 
-            # print("\n $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ ")
-            # print('dist_self = %f'%dist_self)
-            # print('dist_intr = %f'%dist_intr)
-            #print("crash at: [%f, %f]"%(crash_lat, crash_lon))
-            # if the point closer to the predicted collision is within the tolerance
-            # print('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
             print('crash distance from self / intruder')
             print(dist_self, dist_intr)
             print("--------------------------------")
             print("angle between self and intruder vectors:\n", angle)
+            print("angle: " + str(angle) + "\n")
             print("--------------------------------")
             if min(dist_self, dist_intr) <= XAvoidTolerance:
                 print(XAvoidTolerance)
+                f.close()
                 return True
+        f.close()
         return False
 
     def chooseY(self, ypos, yneg):
@@ -829,6 +841,8 @@ class Plane():
         return wpAvoid
         """
         print("avoid called")
+        f = open(outputFile, "a")
+        f.write("avoid called\n")
 
         # # case 2
         # lonAvoid = self.avoidwpX/139
@@ -848,78 +862,21 @@ class Plane():
 
         wpAvoid = LocationGlobalRelative(latAvoid, lonAvoid, zAvoid)
         print("going to waypoint ", latAvoid, lonAvoid)
+        f.write("going to waypoint (latitude, longitude): (" + str(latAvoid) + ", " + str(lonAvoid) + ")\n")
+        f.write("going to waypoint (x, y): (" + str(newX) + ", " + str(newY) + ")\n")
+        f.close()
         return wpAvoid
         #return [xAvoid, yAvoid, zAvoid] # note: insert_avoidWP requires a list of x, y, z values
 
     def save_to_file(self):
-        #print("In save to file function")
-
-        shortDate = datetime.datetime.today().strftime('%Y_%m_%d')
-        outputFile = "log_output_" + shortDate + ".txt"
-        f = open(outputFile, "a")
-
-        lastGPS = [0,0]
-        secondTolastGPS = [0,0]
-
+        f.write("\n\n\n\n\n________________________________________________________________\n")
+        f.write("NEW MISSION: " + str(datetime.datetime.now()) + "\n")
+        f.write("________________________________________________________________\n")
         for item in list(self.mission):
             f.write(str(item) + '\n')
-        
-        while self.is_armed():
-            timeNow = str(datetime.datetime.now())
-            f.write(timeNow + " : " + "~~~~~~~~~~New Point~~~~~~~~~~~~" + '\n')
-           # f.write(timeNow + " : " + "Current Airspped : " + str(self.airspeed) + '\n')
-            f.write(timeNow + " : " + "Current X Velocity : " + str(self.vehicle.velocity[0]) + '\n')
-            f.write(timeNow + " : " + "Current Y Velocity : " + str(self.vehicle.velocity[1]) + '\n')
-            f.write(timeNow + " : " + "Current lattitude : " + str(self.pos_lat) + '\n')
-            f.write(timeNow + " : " + "Current longitude : " + str(self.pos_lon) + '\n')
-            f.write(timeNow + " : " + "Current Waypoint : " + str(self.current_WP_number()) + '\n')
-            # f.write(timeNow + " : " + "last lattitude : " + str(lastGPS[0]) + '\n')
-            # f.write(timeNow + " : " + "last longitude : " + str(lastGPS[1]) + '\n')
-            # f.write(timeNow + " : " + "second to last lattitude : " + str(secondTolastGPS[0]) + '\n')
-            # f.write(timeNow + " : " + "second to last longitude : " + str(secondTolastGPS[1]) + '\n')
-
-            if(self.receive_msg):
-               # print(self.receive_msg)
-               # print(self.receive_velocity[0])
-                f.write(timeNow + " : " + "Intruder X Velocity : " + str(self.receive_velocity[0]) + '\n')
-                f.write(timeNow + " : " + "Intruder Y Velocity : " + str(self.receive_velocity[1]) + '\n')
-                f.write(timeNow + " : " + "Intruder lattitude : " + str(self.receive_lattitude) + '\n')
-                f.write(timeNow + " : " + "Intruder longitude : " + str(self.receive_longitude) + '\n')
-
-            if self.will_crash:
-                f.write(timeNow + ": " + "Predicted crash lattitude : " + str(self.crash_lat) + '\n')
-                f.write(timeNow + ": " + "Predicted crash longitude : " + str(self.crash_lon) + '\n')
-                f.write(timeNow + ": " + "Crash location : %f, %f" %(self.crash_lon, self.crash_lat) + '\n')
-                self.will_crash = False # prints faster than prediction updates; only print once
-            
-            if self.avoiding:
-                f.write(timeNow + ": Performing Avoidance now")
-
-
-
-            #secondTolastGPS = [lastGPS[0],lastGPS[0]]
-            #lastGPS = [self.pos_lat,self.pos_lon]
-
-            timestep = 1
-            for i in range(10):
-                f.write(timeNow + " : " + "Timestamp" + str(i) + '\n')
-                # original
-                #futurePosX = self.getFuturePosition(self.pos_lat*139, self.vehicle.velocity[0], timestep)
-                #futurePosY = self.getFuturePosition(self.pos_lon*111, self.vehicle.velocity[1], timestep)
-                # lat/lon fix
-                futurePosX = self.getFuturePosition(self.pos_lon*139, self.vehicle.velocity[0], timestep)
-                futurePosY = self.getFuturePosition(self.pos_lat*111, self.vehicle.velocity[1], timestep)
-                f.write(timeNow + " : " + "futurePosX : " + str((futurePosX/1000)/139) + '\n')
-                f.write(timeNow + " : " + "futurePosY : " + str((futurePosY/1000)/111) + '\n')
-
-                timestep = timestep + 0.5
-
-            time.sleep(1.0)
-            #print("end save to file function")
-
+        time.sleep(1.0)
         f.close()
         
-
     def send_ADSB_data(self):
 
         print("In send ADSB funtion")
@@ -1014,12 +971,12 @@ class Plane():
 
 
     def run(self):
-        t1 = threading.Thread(target=self.save_to_file, daemon=True) # flight test: comment out daemon=true
+        #t1 = threading.Thread(target=self.save_to_file, daemon=True) # flight test: comment out daemon=true
         t2 = threading.Thread(target=self.send_ADSB_data, daemon=True)
         t3 = threading.Thread(target=self.receive_ADSB_data, daemon=True)
         t4 = threading.Thread(target=self.prediction, daemon=True)
 
-        t1.start()
+        #t1.start()
         t2.start()
         t3.start()
         t4.start()
