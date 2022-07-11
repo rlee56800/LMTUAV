@@ -2,8 +2,6 @@
 New functions to graph
 plots created from the
 new output functions
-
-works for 7/07
 '''
 
 import matplotlib.pyplot as plt
@@ -11,7 +9,8 @@ import matplotlib.pyplot as plt
 ########## CHANGE FILE NAME HERE ##########
 # This is placeholder data/allows program to be run without GUI
 title_of_graph = 'Flight Graph: 7/07 Flight Test'
-name_of_file = 'Python GUI/Log Outputs/flightTest_log_output_2022_07_07.txt'
+name_of_file = '../Python GUI/Log Outputs/flightTest_log_output_2022_07_07.txt'
+#name_of_file = 'Python GUI/Log Outputs/flightTest_log_output_2022_07_07.txt'
 ## NOTE: check if file has completed time stamps (i.e. has both future x AND y pos)
 show_predicted = [] # index/indices of value to show predicted values
 show_intruder = 1
