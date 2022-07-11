@@ -2,6 +2,8 @@
 New functions to graph
 plots created from the
 new output functions
+
+works for 7/07
 '''
 
 import matplotlib.pyplot as plt
