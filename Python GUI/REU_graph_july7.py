@@ -37,6 +37,9 @@ def main(graph_name: str, file_name: str):
     all_avoid_y = [] # collection of avoid_y values (array of arrays)
     save_next = False
 
+    start = 0
+    end = 30
+
     with open(file_name) as file:
         for line in file:
             if 'own position' in line:
@@ -73,19 +76,23 @@ def main(graph_name: str, file_name: str):
 
     # for current vehicle
     #plt.scatter(lattitude[1:], longitude[1:], color='black') # Creates scatter plot (dots)
-    plt.plot(own_x, own_y, color='black', zorder=1) # Creates line for ownship
+    plt.plot(own_x[start:end], own_y[start:end], color='black', zorder=1) # Creates line for ownship
 
-    plt.plot(intr_x, intr_y, color='orange', zorder=1) # Creates line for intruder
+    plt.plot(intr_x[start:end], intr_y[start:end], color='orange', zorder=1) # Creates line for intruder
 
     for i in range(len(all_avoid_x)):
         plt.plot(all_avoid_x[i], all_avoid_y[i], color = 'blue', zorder = 1) # creates line for each avoid maneuver
     
+
     plt.plot(own_x[0], own_y[0], color = 'green', marker = 'X', markersize = '10', zorder = 1) # Creates starting point for ownship
-    plt.plot(own_x[-1], own_y[-1], color = 'red', marker = 'X', markersize = '10', zorder = 1) # Creates ending point for ownship
+    plt.plot(own_x[end-1], own_y[end-1], color = 'red', marker = 'X', markersize = '10', zorder = 1) # Creates ending point for ownship
 
     
     plt.plot(intr_x[0], intr_y[0], color = 'green', marker = 'X', markersize = '10', zorder = 1) # Creates starting point for intruder
-    plt.plot(intr_x[-1], intr_y[-1], color = 'red', marker = 'X', markersize = '10', zorder = 1) # Creates ending point for intruder
+    plt.plot(intr_x[end-1], intr_y[end-1], color = 'red', marker = 'X', markersize = '10', zorder = 1) # Creates ending point for intruder
+
+    # num = 150
+    # plt.scatter(own_x[num], own_y[num], color = 'magenta')
 
     plt.ticklabel_format(useOffset=False) # Display axes correctly
 
