@@ -4,14 +4,18 @@ plots created from the
 new output functions
 '''
 
+from turtle import color
 import matplotlib.pyplot as plt
+
+from matplotlib.animation import PillowWriter
 
 ########## CHANGE FILE NAME HERE ##########
 # This is placeholder data/allows program to be run without GUI
 title_of_graph = 'Flight Graph: 7/07 Flight Test'
-name_of_file = '../Python GUI/Log Outputs/flightTest_log_output_2022_07_07.txt'
-#name_of_file = 'Python GUI/Log Outputs/flightTest_log_output_2022_07_07.txt'
+name_of_file = 'Python GUI/Log Outputs/flightTest_log_output_2022_07_07.txt'
 ## NOTE: check if file has completed time stamps (i.e. has both future x AND y pos)
+start = 0
+end = 30
 
 def splitter(input_str: str, isX: bool):
     # takes floats out of given String
@@ -25,8 +29,61 @@ def splitter(input_str: str, isX: bool):
     else: # is y
         return float(i[4][:-1]) / 111
 
-def main(graph_name: str, file_name: str):
-    ########## Graphing ##########
+def plotGraph():
+    # generates graph in new window
+    
+    plt.figure(figsize=(10, 7)) # Window size
+
+    # for current vehicle
+    #plt.scatter(lattitude[1:], longitude[1:], color='black') # Creates scatter plot (dots)
+    plt.plot(own_x[start:end], own_y[start:end], color='black', zorder=1) # Creates line for ownship
+
+    plt.plot(intr_x[start:end], intr_y[start:end], color='orange', zorder=1) # Creates line for intruder
+
+    for i in range(len(all_avoid_x)):
+        plt.plot(all_avoid_x[i], all_avoid_y[i], color = 'blue', zorder = 1) # creates line for each avoid maneuver
+    
+    
+    plt.show()
+
+def makeGif():
+    # generates gif animation file
+    fig = plt.figure(figsize=(10, 7))
+    l, = plt.plot([], [], 'k-')
+    m, = plt.plot([], [], color='orange')
+    
+    # graph window (for 7/07 only)
+    plt.xlim(-117.8135, -117.8100)
+    plt.ylim(34.0425, 34.0455)
+    
+    metadata = dict(title = 'Movie', artist = 'Orange Joe')
+    writer = PillowWriter(fps = 10, metadata=metadata)
+
+    xlist_o = []
+    ylist_o = []
+    xlist_i = []
+    ylist_i = []
+
+    with writer.saving(fig, "Flight Graphs/7-07_flight_test.gif", 100):
+        # for i in range(start, end):
+        #     plt.plot(own_x[i], own_y[i], color='black', zorder=1)
+        #     plt.plot(intr_x[i], intr_y[i], color='orange', zorder=1)
+
+        #     writer.grab_frame
+        for i in range(start, end):
+            xlist_o.append(own_x[i])
+            ylist_o.append(own_y[i])
+            xlist_i.append(intr_x[i])
+            ylist_i.append(intr_y[i])
+
+            l.set_data(xlist_o, ylist_o)
+            m.set_data(xlist_i, ylist_i)
+
+            writer.grab_frame()
+
+def main(graph_name: str, file_name: str, start: int, end: int):
+    # FOR GRAPHING
+    global own_x, own_y, intr_x, intr_y, avoid_x, avoid_y, all_avoid_x, all_avoid_y, save_next
     own_x = [] # lon of ownship
     own_y = [] # lat of ownship
     intr_x = [] # lon of intruder
@@ -36,9 +93,6 @@ def main(graph_name: str, file_name: str):
     all_avoid_x = [] # collection of avoid_x values (array of arrays)
     all_avoid_y = [] # collection of avoid_y values (array of arrays)
     save_next = False
-
-    start = 0
-    end = 30
 
     with open(file_name) as file:
         for line in file:
@@ -71,19 +125,38 @@ def main(graph_name: str, file_name: str):
         all_avoid_x.append(avoid_x)
         all_avoid_y.append(avoid_y)
 
-    plt.figure(figsize=(10, 7)) # Window size
+    # plt.figure(figsize=(10, 7)) # Window size
 
 
-    # for current vehicle
-    #plt.scatter(lattitude[1:], longitude[1:], color='black') # Creates scatter plot (dots)
-    plt.plot(own_x[start:end], own_y[start:end], color='black', zorder=1) # Creates line for ownship
+    # # for current vehicle
+    # #plt.scatter(lattitude[1:], longitude[1:], color='black') # Creates scatter plot (dots)
+    # plt.plot(own_x[start:end], own_y[start:end], color='black', zorder=1) # Creates line for ownship
 
-    plt.plot(intr_x[start:end], intr_y[start:end], color='orange', zorder=1) # Creates line for intruder
+    # plt.plot(intr_x[start:end], intr_y[start:end], color='orange', zorder=1) # Creates line for intruder
 
-    for i in range(len(all_avoid_x)):
-        plt.plot(all_avoid_x[i], all_avoid_y[i], color = 'blue', zorder = 1) # creates line for each avoid maneuver
+    # for i in range(len(all_avoid_x)):
+    #     plt.plot(all_avoid_x[i], all_avoid_y[i], color = 'blue', zorder = 1) # creates line for each avoid maneuver
+
+    # generates gif animation file
+    fig = plt.figure(figsize=(10, 7))
+    l, = plt.plot([], [], 'k-')
+    m, = plt.plot([], [], color='orange')
     
+    # graph window (for 7/07 only)
+    plt.xlim(-117.8135, -117.8100)
+    plt.ylim(34.0425, 34.0455)
+    
+    metadata = dict(title = 'Movie', artist = 'Orange Joe')
+    writer = PillowWriter(fps = 10, metadata=metadata)
 
+    with writer.saving(fig, "Flight Graphs/7-07_flight_test.gif", 100):
+        for i in range(start, end):
+            l.set_data(own_x[start:i], own_y[start:i])
+            m.set_data(intr_x[start:i], intr_y[start:i])
+
+            writer.grab_frame()
+    
+    
     plt.plot(own_x[0], own_y[0], color = 'green', marker = 'X', markersize = '10', zorder = 1) # Creates starting point for ownship
     plt.plot(own_x[end-1], own_y[end-1], color = 'red', marker = 'X', markersize = '10', zorder = 1) # Creates ending point for ownship
 
@@ -100,7 +173,7 @@ def main(graph_name: str, file_name: str):
     plt.ylabel('Latitude')
     plt.xlabel('Longitude')
 
-    plt.show()
+    #plt.show()
 
 if __name__ == '__main__':
-    main(title_of_graph, name_of_file)
+    main(title_of_graph, name_of_file, start, end)
