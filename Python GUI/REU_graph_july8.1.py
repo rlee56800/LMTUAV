@@ -74,22 +74,30 @@ def main(graph_name: str, file_name: str, map_intruder: int, predicted_indices =
 
     # for current vehicle
     #plt.scatter(lattitude[1:], longitude[1:], color='black') # Creates scatter plot (dots)
+    print(len(own_x))
+    cutoff_end = 15
+    cutoff_beg = 30
+    own_x = own_x[cutoff_beg:len(own_x)-cutoff_end]
+    own_y = own_y[cutoff_beg:len(own_y)-cutoff_end]
     plt.plot(own_x, own_y, color='black', zorder=1) # Creates line
-    #plt.plot(avoid_x, avoid_y, color = 'blue', zorder = 1)
+    plt.plot(own_x[0], own_y[0], color = 'green', marker = 'X', markersize = '10', zorder = 1)
+    plt.plot(own_x[len(own_x)-1], own_y[len(own_y)-1], color = 'red', marker = 'X', markersize = '10', zorder = 1)
+
+    #mylistx = [0,0]
+    #mylisty = [0,0]
+    for i in range (0, len(avoid_x), 2):
+        #print("connect these paths:", mylist[i], mylist[i+1])
+        mylistx = [avoid_x[i], avoid_x[i+1]]
+        mylisty = [avoid_y[i], avoid_y[i+1]]
+        plt.plot(mylistx, mylisty, color = 'blue', zorder = 1)
+        #plt.plot(avoid_x[i], avoid_y[i], color = 'blue', marker = '*', markersize = 10, zorder = 1)
+        #plt.plot(avoid_x[i+1], avoid_y[i+1], color = 'blue', marker = '*', markersize = 10, zorder = 1)
     #print(intr_x)
-
-    # for intruder vehicle
-    if True:
-        #print(len(intruder_lattitude), len(intruder_longitude))
-        #plt.scatter(intruder_lattitude, intruder_longitude, color='red') # Creates scatter plot (dots)
-        plt.plot(intr_x, intr_y, color='red', zorder=1) # Creates line
-        # throw error if either are empty
-
 
     # TESTING SPACE
     # plt.scatter(-117.whatever, 34.whatever, color = 'green')
     # plt.scatter(-117.793221, 34.045700, color = 'blue')
-    plt.scatter(intr_x[1], intr_y[1], color = 'red')
+    plt.scatter(intr_x[1], intr_y[1], color = 'orange')
     # plt.scatter(-117.812176, 34.044746, color = 'orange')
     # plt.scatter(-117.817139, 34.044439, color = 'green')
     # plt.scatter(-117.811862, 34.038192, color = 'green')
