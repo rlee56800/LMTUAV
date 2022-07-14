@@ -101,6 +101,7 @@ def main(graph_name: str, file_name: str, map_intruder: int, predicted_indices =
     # plt.scatter(-117.whatever, 34.whatever, color = 'green')
     # plt.scatter(-117.793221, 34.045700, color = 'blue')
     plt.scatter(intr_y[1], intr_x[1], color = 'orange')
+    print(intr_y[1], intr_x[1])
     # plt.scatter(-117.812176, 34.044746, color = 'orange')
     # plt.scatter(-117.817139, 34.044439, color = 'green')
     # plt.scatter(-117.811862, 34.038192, color = 'green')
