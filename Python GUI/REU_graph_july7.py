@@ -9,6 +9,11 @@ import matplotlib.pyplot as plt
 
 from matplotlib.animation import PillowWriter # for gif
 from matplotlib.animation import FFMpegWriter # for mp4
+f = open("Python GUI/ffmpeg_path.txt", "r")
+plt.rcParams['animation.ffmpeg_path'] = f.read()
+f.close()
+# download ffmpeg from here https://www.ffmpeg.org/download.html#releases
+# Windows https://github.com/BtbN/FFmpeg-Builds/releases
 
 ########## CHANGE FILE NAME HERE ##########
 # This is placeholder data/allows program to be run without GUI
@@ -171,10 +176,10 @@ def main(graph_name: str, file_name: str, start: int, end: int):
 
     ### gif continued
     metadata = dict(title = 'Movie', artist = 'Orange Joe')
-    writer = PillowWriter(fps = 10, metadata=metadata) # for gif
-    #writer = FFMpegWriter(fps = 10, metadata=metadata) # for mp4
+    #writer = PillowWriter(fps = 10, metadata=metadata) # for gif
+    writer = FFMpegWriter(fps = 10, metadata=metadata) # for mp4
 
-    with writer.saving(fig, "Flight Graphs/7-07_flight_test2.gif", 100):
+    with writer.saving(fig, "Flight Graphs/7-07_flight_test5.mp4", 100):
         for i in range(start, end):
             own_line.set_data(own_x[start:i], own_y[start:i])
             intr_line.set_data(intr_x[start:i], intr_y[start:i])
