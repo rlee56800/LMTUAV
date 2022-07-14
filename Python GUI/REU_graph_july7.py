@@ -7,7 +7,8 @@ new output functions
 from turtle import color
 import matplotlib.pyplot as plt
 
-from matplotlib.animation import PillowWriter
+from matplotlib.animation import PillowWriter # for gif
+from matplotlib.animation import FFMpegWriter # for mp4
 
 ########## CHANGE FILE NAME HERE ##########
 # This is placeholder data/allows program to be run without GUI
@@ -42,8 +43,7 @@ def plotGraph():
 
     for i in range(len(all_avoid_x)):
         plt.plot(all_avoid_x[i], all_avoid_y[i], color = 'blue', zorder = 1) # creates line for each avoid maneuver
-    
-    
+        
     plt.show()
 
 def makeGif():
@@ -92,7 +92,7 @@ def main(graph_name: str, file_name: str, start: int, end: int):
     avoid_y = [] # temp storage for lat of points in 1 avoid maneuver
     all_avoid_x = [] # collection of avoid_x values (array of arrays)
     all_avoid_y = [] # collection of avoid_y values (array of arrays)
-    save_next = False
+    save_next = False # save value after predict
 
     with open(file_name) as file:
         for line in file:
@@ -125,8 +125,8 @@ def main(graph_name: str, file_name: str, start: int, end: int):
         all_avoid_x.append(avoid_x)
         all_avoid_y.append(avoid_y)
 
+    ### GENERATE GRAPH IMAGE ###
     # plt.figure(figsize=(10, 7)) # Window size
-
 
     # # for current vehicle
     # #plt.scatter(lattitude[1:], longitude[1:], color='black') # Creates scatter plot (dots)
@@ -137,24 +137,22 @@ def main(graph_name: str, file_name: str, start: int, end: int):
     # for i in range(len(all_avoid_x)):
     #     plt.plot(all_avoid_x[i], all_avoid_y[i], color = 'blue', zorder = 1) # creates line for each avoid maneuver
 
-    # generates gif animation file
+
+    ### GENERATE GIF ANIMATION FILE ###
+    # using https://www.youtube.com/watch?v=bNbN9yoEOdU
     fig = plt.figure(figsize=(10, 7))
-    l, = plt.plot([], [], 'k-')
-    m, = plt.plot([], [], color='orange')
+    own_line, = plt.plot([], [], 'k-') # line for the ownship
+    intr_line, = plt.plot([], [], color='orange') # line for the intruder
+    # for avoid points
+    avoid1_line, = plt.plot([], [], color='blue') # yuck!
+    avoid2_line, = plt.plot([], [], color='blue') # yuck!
+    cur_avoid = 0 # current avoid section (which array)
+    cur_avoid_pt = 0 # current avoid point (which value)
     
     # graph window (for 7/07 only)
     plt.xlim(-117.8135, -117.8100)
     plt.ylim(34.0425, 34.0455)
-    
-    metadata = dict(title = 'Movie', artist = 'Orange Joe')
-    writer = PillowWriter(fps = 10, metadata=metadata)
-
-    with writer.saving(fig, "Flight Graphs/7-07_flight_test.gif", 100):
-        for i in range(start, end):
-            l.set_data(own_x[start:i], own_y[start:i])
-            m.set_data(intr_x[start:i], intr_y[start:i])
-
-            writer.grab_frame()
+    ### gif code continued below    
     
     
     plt.plot(own_x[0], own_y[0], color = 'green', marker = 'X', markersize = '10', zorder = 1) # Creates starting point for ownship
@@ -164,14 +162,41 @@ def main(graph_name: str, file_name: str, start: int, end: int):
     plt.plot(intr_x[0], intr_y[0], color = 'green', marker = 'X', markersize = '10', zorder = 1) # Creates starting point for intruder
     plt.plot(intr_x[end-1], intr_y[end-1], color = 'red', marker = 'X', markersize = '10', zorder = 1) # Creates ending point for intruder
 
-    # num = 150
-    # plt.scatter(own_x[num], own_y[num], color = 'magenta')
-
     plt.ticklabel_format(useOffset=False) # Display axes correctly
 
     plt.title(graph_name)
     plt.ylabel('Latitude')
     plt.xlabel('Longitude')
+    
+
+    ### gif continued
+    metadata = dict(title = 'Movie', artist = 'Orange Joe')
+    writer = PillowWriter(fps = 10, metadata=metadata) # for gif
+    #writer = FFMpegWriter(fps = 10, metadata=metadata) # for mp4
+
+    with writer.saving(fig, "Flight Graphs/7-07_flight_test2.gif", 100):
+        for i in range(start, end):
+            own_line.set_data(own_x[start:i], own_y[start:i])
+            intr_line.set_data(intr_x[start:i], intr_y[start:i])
+
+
+            # sorry this is so yucky!!
+            if (cur_avoid+1 <= len(all_avoid_x)) and (own_x[i] == all_avoid_x[cur_avoid][cur_avoid_pt]) and (own_y[i] == all_avoid_y[cur_avoid][cur_avoid_pt]):
+                #print('avoid')
+                # plane avoids twice :E
+                if cur_avoid == 0:
+                    avoid1_line.set_data(all_avoid_x[0][0:cur_avoid_pt+1], all_avoid_y[0][0: cur_avoid_pt+1])
+                    #print(all_avoid_x[0][:cur_avoid_pt+1], all_avoid_y[0][: cur_avoid_pt+1])
+                else:
+                    avoid2_line.set_data(all_avoid_x[1][0:cur_avoid_pt+1], all_avoid_y[1][0: cur_avoid_pt+1])
+                    #print(all_avoid_x[1][:cur_avoid_pt+1], all_avoid_y[1][: cur_avoid_pt+1])
+                cur_avoid_pt += 1
+                if cur_avoid_pt >= len(all_avoid_x[cur_avoid]):
+                    cur_avoid+=1
+                    cur_avoid_pt = 0
+
+            
+            writer.grab_frame()
 
     #plt.show()
 
