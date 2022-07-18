@@ -179,7 +179,7 @@ def main(graph_name: str, file_name: str, start: int, end: int):
     #writer = PillowWriter(fps = 10, metadata=metadata) # for gif
     writer = FFMpegWriter(fps = 10, metadata=metadata) # for mp4
 
-    with writer.saving(fig, "Flight Graphs/7-07_flight_test50.mp4", 100):
+    with writer.saving(fig, "Flight Graphs/7-07_flight_test.mp4", 100):
         for i in range(start, end):
             own_line.set_data(own_x[start:i], own_y[start:i])
             intr_line.set_data(intr_x[start:i], intr_y[start:i])
