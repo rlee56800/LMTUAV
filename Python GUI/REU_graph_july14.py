@@ -8,7 +8,9 @@ import matplotlib.pyplot as plt
 
 ########## CHANGE FILE NAME HERE ##########
 # This is placeholder data/allows program to be run without GUI
-title_of_graph = 'Flight Graph: 7/08.1 Flight Test'
+# in log output july 14 3rd run at 11:33 is without intruder
+# graph behind one with intruder as dashed line to show path without avoid called
+title_of_graph = 'Flight Graph: 7/14 Sim Test'
 name_of_file = '../Python GUI/Log Outputs/flightTest_log_output_2022_07_08.1.txt'
 name_of_file = '../Python GUI/Log Outputs/sim_log_output_2022_07_14.txt'
 
@@ -67,7 +69,10 @@ def main(graph_name: str, file_name: str, map_intruder: int, predicted_indices =
                 intr_y.append(splitter(line, False)/111)
             if 'avoid' in line:
                 print("avoid called")
+            if 'while' in line:
                 save_next = True
+                continue
+            if save_next:
                 avoid_x.append(own_x[-1])
                 avoid_y.append(own_y[-1])
 
@@ -78,7 +83,7 @@ def main(graph_name: str, file_name: str, map_intruder: int, predicted_indices =
     #plt.scatter(lattitude[1:], longitude[1:], color='black') # Creates scatter plot (dots)
     print(len(own_x))
     cutoff_end = 0 #15
-    cutoff_beg = 0 #30
+    cutoff_beg = 25 #30
 
     own_x = own_x[cutoff_beg:len(own_x)-cutoff_end]
     own_y = own_y[cutoff_beg:len(own_y)-cutoff_end]
@@ -86,6 +91,13 @@ def main(graph_name: str, file_name: str, map_intruder: int, predicted_indices =
     plt.plot(own_x[0], own_y[0], color = 'green', marker = 'X', markersize = '10', zorder = 1)
     plt.plot(own_x[len(own_x)-1], own_y[len(own_y)-1], color = 'red', marker = 'X', markersize = '10', zorder = 1)
 
+    #waypoints:
+    plt.plot(-117.81212615966797, 34.04416275024414, color = 'purple', marker = 'x', markersize = '10', zorder = 1)
+    plt.plot(-117.81346893310547, 34.04281997680664, color = 'purple', marker = 'x', markersize = '10', zorder = 1)
+    plt.plot(-117.81244659423828, 34.04227828979492, color = 'purple', marker = 'x', markersize = '10', zorder = 1)
+    plt.plot(-117.81121826171875, 34.043582916259766, color = 'purple', marker = 'x', markersize = '10', zorder = 1)
+
+    print(avoid_x)
     #mylistx = [0,0]
     #mylisty = [0,0]
     for i in range (0, len(avoid_x), 2):
@@ -93,6 +105,7 @@ def main(graph_name: str, file_name: str, map_intruder: int, predicted_indices =
         mylistx = [avoid_x[i], avoid_x[i+1]]
         mylisty = [avoid_y[i], avoid_y[i+1]]
         plt.plot(mylistx, mylisty, color = 'blue', zorder = 1)
+        print(mylistx)
         #plt.plot(avoid_x[i], avoid_y[i], color = 'blue', marker = '*', markersize = 10, zorder = 1)
         #plt.plot(avoid_x[i+1], avoid_y[i+1], color = 'blue', marker = '*', markersize = 10, zorder = 1)
     #print(intr_x)

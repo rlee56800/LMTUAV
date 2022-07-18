@@ -37,7 +37,7 @@ import serial
 
 ser = serial.Serial(
 
-    port='COM7',#3',
+    port='COM3',#7',
     baudrate = 9600,
     parity=serial.PARITY_NONE,
     stopbits=serial.STOPBITS_ONE,
@@ -531,7 +531,7 @@ class Plane():
                     self.receive_airspeed = 0.0         #- [m/s]    airspeed
                 pass
 
-            XAvoidTolerance = 0.1 #10.0
+            XAvoidTolerance = 0.05  #10.0
 
             velX = float(self.vx) # vx speed (pos -> north, neg -> south)
             velY = float(self.vy) #- [m/s]  # vy speed (pos -> east, neg -> west) 
@@ -960,8 +960,8 @@ class Plane():
         while True:
             print("receiving")
             self.receive_msg = True
-            self.receive_lattitude = 34.0431831 #34.0608370 
-            self.receive_longitude = -117.8115892 # -117.8134
+            self.receive_lattitude = 36.0434543 #34.0434543
+            self.receive_longitude = -119.8128 # -117.8128
             self.receive_velocity = [-self.vy, self.vx, self.vz]
 
             # print("intruder is at lat ",self.receive_lattitude)
