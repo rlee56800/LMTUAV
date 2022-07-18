@@ -1,6 +1,6 @@
 '''
 New functions to graph
-plots created from the
+plots created from the  
 new output functions
 '''
 
