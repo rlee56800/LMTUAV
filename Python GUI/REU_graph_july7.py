@@ -1,6 +1,6 @@
 '''
 New functions to graph
-plots created from the  
+plots created from the
 new output functions
 '''
 
@@ -18,10 +18,7 @@ f.close()
 ########## CHANGE FILE NAME HERE ##########
 # This is placeholder data/allows program to be run without GUI
 title_of_graph = 'Flight Graph: 7/07 Flight Test'
-name_of_file = '../Python GUI/Log Outputs/flightTest_log_output_2022_07_07.txt'
-#name_of_file = '../Python GUI/Log Outputs/sim_log_output_2022_07_14.txt'
-
-#name_of_file = 'Python GUI/Log Outputs/flightTest_log_output_2022_07_07.txt'
+name_of_file = 'Python GUI/Log Outputs/flightTest_log_output_2022_07_07.txt'
 ## NOTE: check if file has completed time stamps (i.e. has both future x AND y pos)
 start = 0
 end = 30
@@ -182,7 +179,7 @@ def main(graph_name: str, file_name: str, start: int, end: int):
     #writer = PillowWriter(fps = 10, metadata=metadata) # for gif
     writer = FFMpegWriter(fps = 10, metadata=metadata) # for mp4
 
-    with writer.saving(fig, "Flight Graphs/7-07_flight_test5.mp4", 100):
+    with writer.saving(fig, "Flight Graphs/7-07_flight_test50.mp4", 100):
         for i in range(start, end):
             own_line.set_data(own_x[start:i], own_y[start:i])
             intr_line.set_data(intr_x[start:i], intr_y[start:i])
