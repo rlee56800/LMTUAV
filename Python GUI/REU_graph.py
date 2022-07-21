@@ -4,16 +4,26 @@ plots created from the
 new output functions
 '''
 
+from turtle import color
 import matplotlib.pyplot as plt
+
+from matplotlib.animation import PillowWriter # for gif
+from matplotlib.animation import FFMpegWriter # for mp4
+f = open("Python GUI/ffmpeg_path.txt", "r")
+plt.rcParams['animation.ffmpeg_path'] = f.read()
+f.close()
+# download ffmpeg from here https://www.ffmpeg.org/download.html#releases
+# Windows https://github.com/BtbN/FFmpeg-Builds/releases
 
 ########## CHANGE FILE NAME HERE ##########
 # This is placeholder data/allows program to be run without GUI
-title_of_graph = 'Flight Graph: 7/08.2 Flight Test'
-name_of_file = '../Python GUI/Log Outputs/flightTest_log_output_2022_07_08.2.txt'
-#name_of_file = 'Python GUI/Log Outputs/flightTest_log_output_2022_07_07.txt'
+title_of_graph = 'Flight Graph: 7/15 Flight Test 2'
+name_of_file = 'Python GUI/Log Outputs/flightTest_log_output_2022_07_15.2.txt'
 ## NOTE: check if file has completed time stamps (i.e. has both future x AND y pos)
-show_predicted = [] # index/indices of value to show predicted values
-show_intruder = 1
+start = 1
+end = 170
+# show_predicted = [] # index/indices of value to show predicted values
+# show_intruder = 1
 
 def splitter(input_str: str, isX: bool):
     i = input_str.split()
@@ -25,35 +35,24 @@ def splitter(input_str: str, isX: bool):
     else:
         return float(i[3])
 
-def main(graph_name: str, file_name: str, map_intruder: int, predicted_indices = [], plotted_point = [], predicted_collision_point = []):
+def main(graph_name: str, file_name: str, start: int, end: int):
+#def main(graph_name: str, file_name: str, map_intruder: int, predicted_indices = [], plotted_point = [], predicted_collision_point = []):
     ########## Graphing ##########
-    # waypoint = []
-    # longitude = []
-    # lattitude = []
-    # future_pos_x = []
-    # future_pos_y = []
-    # x = []
-    # # y = []
-
-    # intruder_longitude = []
-    # intruder_lattitude = []
-
-    # waypoint_latitude = []
-    # waypoint_longitude = []
-
     #y is latitude, x is longitude
-    own_x = []
-    own_y = []
-    intr_x = []
-    intr_y = []
-    avoid_x = []
-    avoid_y = []
-    save_next = False
+    global own_x, own_y, intr_x, intr_y, avoid_x, avoid_y, all_avoid_x, all_avoid_y, save_next
+    own_x = [] # lon of ownship
+    own_y = [] # lat of ownship
+    intr_x = [] # lon of intruder
+    intr_y = [] # lat of intruder
+    avoid_x = [] # temp storage for lon of points in 1 avoid maneuver
+    avoid_y = [] # temp storage for lat of points in 1 avoid maneuver
+    all_avoid_x = [] # collection of avoid_x values (array of arrays)
+    all_avoid_y = [] # collection of avoid_y values (array of arrays)
+    save_next = False # save value after predict
 
     with open(file_name) as file:
         for line in file:
             if 'own position:' in line:
-                #print("own found")
                 own_x.append(splitter(line, True))
                 own_y.append(splitter(line, False))
                 if save_next:
@@ -61,70 +60,123 @@ def main(graph_name: str, file_name: str, map_intruder: int, predicted_indices =
                     avoid_y.append(own_y[-1])
                     save_next = False
             elif 'intr position:' in line:
-                #print("intruder found")
                 intr_x.append(splitter(line, True))
                 intr_y.append(splitter(line, False))
             if 'avoid' in line:
-                print("avoid called")
                 save_next = True
+
+                if avoid_x and (avoid_x[-1] != own_x[-1] and avoid_y[-1] != own_y[-1]):
+                    # if the last avoid_x value and own_x value aren't the same,
+                    # then the plane finished avoiding
+                    # (i.e. start a new array)
+                    all_avoid_x.append(avoid_x)
+                    all_avoid_y.append(avoid_y)
+                    avoid_x = []
+                    avoid_y = []
+
                 avoid_x.append(own_x[-1])
                 avoid_y.append(own_y[-1])
             #print(avoid_x, avoid_y)
 
-    plt.figure(figsize=(10, 7)) # Window size
+    if avoid_x:
+        all_avoid_x.append(avoid_x)
+        all_avoid_y.append(avoid_y)
 
-    # constants for scaling (to remove takeoff and landing portions)
-    cutoff_end = 191
-    cutoff_beg = 120
+    ### GENERATE GRAPH IMAGE ###
+    # plt.figure(figsize=(10, 7)) # Window size
 
-    # for current vehicle
-    #plt.scatter(lattitude[1:], longitude[1:], color='black') # Creates scatter plot (dots)
-    # for avoid, maybe store list of tuples? to keep track of multiple avoids
-    own_x = own_x[cutoff_beg:len(own_x)-cutoff_end]
-    own_y = own_y[cutoff_beg:len(own_y)-cutoff_end]
-    plt.plot(own_y, own_x, color='black', zorder=1) # Creates line
-    plt.plot(avoid_y, avoid_x, color = 'blue', zorder = 1)
-    plt.plot(own_y[0], own_x[0], color = 'green', marker = 'X', markersize = '10', zorder = 1)
-    plt.plot(own_y[len(own_y)-1], own_x[len(own_x)-1], color = 'red', marker = 'X', markersize = '10', zorder = 1)
+    # # for current vehicle
+    # #plt.scatter(lattitude[1:], longitude[1:], color='black') # Creates scatter plot (dots)
+    # plt.plot(own_x[start:end], own_y[start:end], color='black', zorder=1) # Creates line for ownship
 
-    #print(intr_x)
+    # plt.plot(intr_x[start:end], intr_y[start:end], color='orange', zorder=1) # Creates line for intruder
 
-    # for intruder vehicle
-    # if True:
-    #     #print(len(intruder_lattitude), len(intruder_longitude))
-    #     #plt.scatter(intruder_lattitude, intruder_longitude, color='red') # Creates scatter plot (dots)
-    #     plt.plot(intr_y, intr_x, color='yellow', zorder=1) # Creates line
-    #     # throw error if either are empty
+    # for i in range(len(all_avoid_x)):
+    #     plt.plot(all_avoid_x[i], all_avoid_y[i], color = 'blue', zorder = 1) # creates line for each avoid maneuver
 
 
-    # TESTING SPACE
-    # plt.scatter(-117.whatever, 34.whatever, color = 'green')
-    # plt.scatter(-117.793221, 34.045700, color = 'blue')
-    plt.scatter(intr_y[1], intr_x[1], color = 'orange')
-    print(intr_y[1], intr_x[1])
-    # plt.scatter(-117.812176, 34.044746, color = 'orange')
-    # plt.scatter(-117.817139, 34.044439, color = 'green')
-    # plt.scatter(-117.811862, 34.038192, color = 'green')
-    # plt.scatter(-117.781062, 34.089111, color = 'purple')
-    '''
+    ### GENERATE GIF ANIMATION FILE ###
+    # using https://www.youtube.com/watch?v=bNbN9yoEOdU
+    fig = plt.figure(figsize=(10, 7))
+    own_line, = plt.plot([], [], 'k-') # line for the ownship
+    intr_line, = plt.plot([], [], color='orange') # line for the intruder
+    # for avoid points
+    # avoid1_line, = plt.plot([], [], color='blue') # yuck!
+    # avoid2_line, = plt.plot([], [], color='blue') # yuck!
+    # cur_avoid = 0 # current avoid section (which array)
+    # cur_avoid_pt = 0 # current avoid point (which value)
+    cur_avoid = 0 # current avoid maneuver (first, second, etc)
+    cur_point = 0 # current point within the avoid maneuver
+    avoidance = {} # plt.plot lines stored in a dictionary, using cur_avoid as keys
+    
+    # graph window (may need to change +-)
+    plt.xlim(min(own_x)-0.0005, max(own_x)+0.0005)
+    plt.ylim(min(own_y)-0.0005, max(own_y)+0.0005)
+    
+    ### gif code continued below (this order matters :P )
+    
+    
+    plt.plot(own_x[start], own_y[start], color = 'green', marker = 'X', markersize = '10', zorder = 1) # Creates starting point for ownship
+    plt.plot(own_x[end], own_y[end], color = 'red', marker = 'X', markersize = '10', zorder = 1) # Creates ending point for ownship
 
-2022-04-28 16:20:48.593403 : Current lattitude : 
-2022-04-28 16:20:48.593403 : Current longitude : 
-2022-04-28 16:20:48.593403 : Intruder X Velocity : -4.14
-2022-04-28 16:20:48.593403 : Intruder Y Velocity : -21.76
-2022-04-28 16:20:48.593403 : Intruder lattitude : 34.0389766
-2022-04-28 16:20:48.593403 : Intruder longitude : -117.80709119999999
-2022-04-28 16:20:48.593403: Predicted crash lattitude : 34.038433512448414
-2022-04-28 16:20:48.593403: Predicted crash longitude : -117.80937068414933
-2022-04-28 16:20:48.593403: Crash location :  '''
+    
+    plt.plot(intr_x[start], intr_y[start], color = 'green', marker = 'X', markersize = '10', zorder = 1) # Creates starting point for intruder
+    plt.plot(intr_x[end], intr_y[end], color = 'red', marker = 'X', markersize = '10', zorder = 1) # Creates ending point for intruder
 
     plt.ticklabel_format(useOffset=False) # Display axes correctly
 
     plt.title(graph_name)
     plt.ylabel('Latitude')
     plt.xlabel('Longitude')
+    
 
-    plt.show()
+    ### gif continued
+    metadata = dict(title = 'Movie', artist = 'Orange Joe')
+    writer = PillowWriter(fps = 10, metadata=metadata) # for gif
+    #writer = FFMpegWriter(fps = 10, metadata=metadata) # for mp4
+
+    with writer.saving(fig, "Flight Graphs/7-15,2_flight_test_gif.gif", 100):
+        for i in range(start, len(own_x[start:end])):
+            
+            # draw own line
+            own_line.set_data(own_x[start:i], own_y[start:i])
+            
+            # draw intruder line
+            intr_line.set_data(intr_x[start:i], intr_y[start:i])
+
+            # draw avoidance lines
+            if (cur_avoid < len(all_avoid_x)):
+                if (cur_point < len(all_avoid_x[cur_avoid]) and 
+                ((own_x[i] == all_avoid_x[cur_avoid][cur_point]) and (own_y[i] == all_avoid_y[cur_avoid][cur_point]))):
+                    # if cur_point is within the range of the avoid values
+                    # and the current x value equals the current avoid value
+                    
+                    try:
+                        # checks if avoidance[cur_avoid] exists
+
+                        if avoidance[cur_avoid]:
+                            # if so, do nothing
+                            pass
+
+                    except:
+                        # if not, create it
+                        avoidance[cur_avoid], = plt.plot([], [], color='blue')
+                    
+                    avoidance[cur_avoid].set_data(all_avoid_x[cur_avoid][0:cur_point+1], all_avoid_y[cur_avoid][0:cur_point+1])
+                    #print(all_avoid_x[cur_avoid][0:cur_point+1], all_avoid_y[cur_avoid][0:cur_point+1])
+
+                    cur_point += 1
+                    #print(cur_avoid, cur_point)
+                elif cur_point == len(all_avoid_x[cur_avoid]):
+                    # else cur_point no longer points to an avoid value
+
+                    cur_avoid += 1 # move to next maneuver
+                    cur_point = 0 # reset cur_point
+            
+            writer.grab_frame()
+
+    #plt.show() # graph image
 
 if __name__ == '__main__':
-    main(title_of_graph, name_of_file, show_intruder, show_predicted)
+    main(title_of_graph, name_of_file, start, end)
+    #main(title_of_graph, name_of_file, show_intruder, show_predicted)
