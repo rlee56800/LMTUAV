@@ -25,23 +25,23 @@ end = 170
 # show_predicted = [] # index/indices of value to show predicted values
 # show_intruder = 1
 
-def splitter(input_str: str, isX: bool):
+def splitter(input_str: str, isLat: bool):
     i = input_str.split()
     
-    # i = ["text", "text", "text", "(-1234,", "5678)"]
-    #                                  x         y
-    if isX:
-        return float(i[2][:-1])
-    else:
+    # i = ["text", "position:", "34.1234,", "-117.1234"]
+    #                               Lon          Lat
+    if isLat:
         return float(i[3])
+    else:
+        return float(i[2][:-1])
 
 def main(graph_name: str, file_name: str, start: int, end: int):
 #def main(graph_name: str, file_name: str, map_intruder: int, predicted_indices = [], plotted_point = [], predicted_collision_point = []):
     ########## Graphing ##########
     #y is latitude, x is longitude
     global own_x, own_y, intr_x, intr_y, avoid_x, avoid_y, all_avoid_x, all_avoid_y, save_next
-    own_x = [] # lon of ownship
-    own_y = [] # lat of ownship
+    own_x = [] # lon of ownship (34.1234)
+    own_y = [] # lat of ownship (-117.1234)
     intr_x = [] # lon of intruder
     intr_y = [] # lat of intruder
     avoid_x = [] # temp storage for lon of points in 1 avoid maneuver
@@ -49,6 +49,9 @@ def main(graph_name: str, file_name: str, start: int, end: int):
     all_avoid_x = [] # collection of avoid_x values (array of arrays)
     all_avoid_y = [] # collection of avoid_y values (array of arrays)
     save_next = False # save value after predict
+    home = [-117.8111693, 34.0436009] # lon/lat of home [lon, lat]
+    wp_x = [-117.8124583, -117.8135955, -117.8120935] # lon of wps
+    wp_y = [34.0422674, 34.0426853, 34.0441788] # lat of wps
 
     with open(file_name) as file:
         for line in file:
@@ -120,8 +123,21 @@ def main(graph_name: str, file_name: str, start: int, end: int):
     plt.plot(own_x[end], own_y[end], color = 'red', marker = 'X', markersize = '10', zorder = 1) # Creates ending point for ownship
 
     
-    plt.plot(intr_x[start], intr_y[start], color = 'green', marker = 'X', markersize = '10', zorder = 1) # Creates starting point for intruder
-    plt.plot(intr_x[end], intr_y[end], color = 'red', marker = 'X', markersize = '10', zorder = 1) # Creates ending point for intruder
+    if (min(intr_x) == max(intr_x)) and (min(intr_y) == max(intr_y)):
+        # if intruder position never changes
+        plt.scatter(intr_x[0], intr_y[0], color = 'orange')
+    else:
+        # intruder moves and start/end points are added
+        plt.plot(intr_x[start], intr_y[start], color = 'green', marker = 'X', markersize = '10', zorder = 1) # Creates starting point for intruder
+        plt.plot(intr_x[end], intr_y[end], color = 'red', marker = 'X', markersize = '10', zorder = 1) # Creates ending point for intruder
+
+    plt.plot(home[0], home[1], color = 'black', marker = '*', zorder = 1) # Creates home point
+    for i in range(len(wp_x)):
+        # Creates waypoints
+        plt.plot(wp_x[i], wp_y[i], color = 'purple', marker = '*', zorder = 1) # Creates starting point for intruder
+        pass
+    
+    
 
     plt.ticklabel_format(useOffset=False) # Display axes correctly
 
@@ -176,6 +192,7 @@ def main(graph_name: str, file_name: str, start: int, end: int):
             writer.grab_frame()
 
     #plt.show() # graph image
+    print(len(own_x))
 
 if __name__ == '__main__':
     main(title_of_graph, name_of_file, start, end)
