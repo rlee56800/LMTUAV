@@ -85,38 +85,38 @@ def main(graph_name: str, file_name: str, start: int, end: int):
         all_avoid_x.append(avoid_x)
         all_avoid_y.append(avoid_y)
 
-    ### GENERATE GRAPH IMAGE ###
-    # plt.figure(figsize=(10, 7)) # Window size
+    ## GENERATE GRAPH IMAGE ###
+    plt.figure(figsize=(10, 7)) # Window size
 
-    # # for current vehicle
-    # #plt.scatter(lattitude[1:], longitude[1:], color='black') # Creates scatter plot (dots)
-    # plt.plot(own_x[start:end], own_y[start:end], color='black', zorder=1) # Creates line for ownship
+    # for current vehicle
+    #plt.scatter(lattitude[1:], longitude[1:], color='black') # Creates scatter plot (dots)
+    plt.plot(own_x[start:end+1], own_y[start:end+1], color='black', zorder=1) # Creates line for ownship
 
-    # plt.plot(intr_x[start:end], intr_y[start:end], color='orange', zorder=1) # Creates line for intruder
+    plt.plot(intr_x[start:end], intr_y[start:end], color='orange', zorder=1) # Creates line for intruder
 
-    # for i in range(len(all_avoid_x)):
-    #     plt.plot(all_avoid_x[i], all_avoid_y[i], color = 'blue', zorder = 1) # creates line for each avoid maneuver
+    for i in range(len(all_avoid_x)):
+        plt.plot(all_avoid_x[i], all_avoid_y[i], color = 'blue', zorder = 1) # creates line for each avoid maneuver
 
 
-    ### GENERATE GIF ANIMATION FILE ###
-    # using https://www.youtube.com/watch?v=bNbN9yoEOdU
-    fig = plt.figure(figsize=(10, 7))
-    own_line, = plt.plot([], [], 'k-') # line for the ownship
-    intr_line, = plt.plot([], [], color='orange') # line for the intruder
-    # for avoid points
-    # avoid1_line, = plt.plot([], [], color='blue') # yuck!
-    # avoid2_line, = plt.plot([], [], color='blue') # yuck!
-    # cur_avoid = 0 # current avoid section (which array)
-    # cur_avoid_pt = 0 # current avoid point (which value)
-    cur_avoid = 0 # current avoid maneuver (first, second, etc)
-    cur_point = 0 # current point within the avoid maneuver
-    avoidance = {} # plt.plot lines stored in a dictionary, using cur_avoid as keys
+    # ### GENERATE GIF ANIMATION FILE ###
+    # # using https://www.youtube.com/watch?v=bNbN9yoEOdU
+    # fig = plt.figure(figsize=(10, 7))
+    # own_line, = plt.plot([], [], 'k-') # line for the ownship
+    # intr_line, = plt.plot([], [], color='orange') # line for the intruder
+    # # for avoid points
+    # # avoid1_line, = plt.plot([], [], color='blue') # yuck!
+    # # avoid2_line, = plt.plot([], [], color='blue') # yuck!
+    # # cur_avoid = 0 # current avoid section (which array)
+    # # cur_avoid_pt = 0 # current avoid point (which value)
+    # cur_avoid = 0 # current avoid maneuver (first, second, etc)
+    # cur_point = 0 # current point within the avoid maneuver
+    # avoidance = {} # plt.plot lines stored in a dictionary, using cur_avoid as keys
     
-    # graph window (may need to change +-)
-    plt.xlim(min(own_x)-0.0005, max(own_x)+0.0005)
-    plt.ylim(min(own_y)-0.0005, max(own_y)+0.0005)
+    # # graph window (may need to change +-)
+    # plt.xlim(min(own_x)-0.0005, max(own_x)+0.0005)
+    # plt.ylim(min(own_y)-0.0005, max(own_y)+0.0005)
     
-    ### gif code continued below (this order matters :P )
+    # ### gif code continued below (this order matters :P )
     
     
     plt.plot(own_x[start], own_y[start], color = 'green', marker = 'X', markersize = '10', zorder = 1) # Creates starting point for ownship
@@ -147,51 +147,51 @@ def main(graph_name: str, file_name: str, start: int, end: int):
     
 
     ### gif continued
-    metadata = dict(title = 'Movie', artist = 'Orange Joe')
-    #writer = PillowWriter(fps = 10, metadata=metadata) # for gif
-    writer = FFMpegWriter(fps = 10, metadata=metadata) # for mp4
+    # metadata = dict(title = 'Movie', artist = 'Orange Joe')
+    # #writer = PillowWriter(fps = 10, metadata=metadata) # for gif
+    # writer = FFMpegWriter(fps = 10, metadata=metadata) # for mp4
 
-    with writer.saving(fig, "Flight Graphs/7-15.2_flight_test_mp4.mp4", 100): # also change .gif or .mp4
-        for i in range(start, (start+len(own_x[start:end])+2)):
+    # with writer.saving(fig, "Flight Graphs/7-15.2_flight_test_mp4.mp4", 100): # also change .gif or .mp4
+    #     for i in range(start, (start+len(own_x[start:end])+2)):
             
-            # draw own line
-            own_line.set_data(own_x[start:i], own_y[start:i])
+    #         # draw own line
+    #         own_line.set_data(own_x[start:i], own_y[start:i])
             
-            # draw intruder line
-            intr_line.set_data(intr_x[start:i], intr_y[start:i])
+    #         # draw intruder line
+    #         intr_line.set_data(intr_x[start:i], intr_y[start:i])
 
-            # draw avoidance lines
-            if (cur_avoid < len(all_avoid_x)):
-                if (cur_point < len(all_avoid_x[cur_avoid]) and 
-                ((own_x[i] == all_avoid_x[cur_avoid][cur_point]) and (own_y[i] == all_avoid_y[cur_avoid][cur_point]))):
-                    # if cur_point is within the range of the avoid values
-                    # and the current x value equals the current avoid value
+    #         # draw avoidance lines
+    #         if (cur_avoid < len(all_avoid_x)):
+    #             if (cur_point < len(all_avoid_x[cur_avoid]) and 
+    #             ((own_x[i] == all_avoid_x[cur_avoid][cur_point]) and (own_y[i] == all_avoid_y[cur_avoid][cur_point]))):
+    #                 # if cur_point is within the range of the avoid values
+    #                 # and the current x value equals the current avoid value
                     
-                    try:
-                        # checks if avoidance[cur_avoid] exists
+    #                 try:
+    #                     # checks if avoidance[cur_avoid] exists
 
-                        if avoidance[cur_avoid]:
-                            # if so, do nothing
-                            pass
+    #                     if avoidance[cur_avoid]:
+    #                         # if so, do nothing
+    #                         pass
 
-                    except:
-                        # if not, create it
-                        avoidance[cur_avoid], = plt.plot([], [], color='blue')
+    #                 except:
+    #                     # if not, create it
+    #                     avoidance[cur_avoid], = plt.plot([], [], color='blue')
                     
-                    avoidance[cur_avoid].set_data(all_avoid_x[cur_avoid][0:cur_point+1], all_avoid_y[cur_avoid][0:cur_point+1])
-                    #print(all_avoid_x[cur_avoid][0:cur_point+1], all_avoid_y[cur_avoid][0:cur_point+1])
+    #                 avoidance[cur_avoid].set_data(all_avoid_x[cur_avoid][0:cur_point+1], all_avoid_y[cur_avoid][0:cur_point+1])
+    #                 #print(all_avoid_x[cur_avoid][0:cur_point+1], all_avoid_y[cur_avoid][0:cur_point+1])
 
-                    cur_point += 1
-                    #print(cur_avoid, cur_point)
-                elif cur_point == len(all_avoid_x[cur_avoid]):
-                    # else cur_point no longer points to an avoid value
+    #                 cur_point += 1
+    #                 #print(cur_avoid, cur_point)
+    #             elif cur_point == len(all_avoid_x[cur_avoid]):
+    #                 # else cur_point no longer points to an avoid value
 
-                    cur_avoid += 1 # move to next maneuver
-                    cur_point = 0 # reset cur_point
+    #                 cur_avoid += 1 # move to next maneuver
+    #                 cur_point = 0 # reset cur_point
             
-            writer.grab_frame()
+    #         writer.grab_frame()
 
-    #plt.show() # graph image
+    plt.show() # graph image
     #print(len(own_x))
 
 if __name__ == '__main__':
