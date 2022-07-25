@@ -20,8 +20,8 @@ f.close()
 title_of_graph = 'Flight Graph: 7/15 Flight Test 2'
 name_of_file = 'Python GUI/Log Outputs/flightTest_log_output_2022_07_15.2.txt'
 ## NOTE: check if file has completed time stamps (i.e. has both future x AND y pos)
-start = 1
-end = 170
+start = 27
+end = 50
 # show_predicted = [] # index/indices of value to show predicted values
 # show_intruder = 1
 
@@ -151,8 +151,8 @@ def main(graph_name: str, file_name: str, start: int, end: int):
     writer = PillowWriter(fps = 10, metadata=metadata) # for gif
     #writer = FFMpegWriter(fps = 10, metadata=metadata) # for mp4
 
-    with writer.saving(fig, "Flight Graphs/7-15,2_flight_test_gif.gif", 100):
-        for i in range(start, len(own_x[start:end])):
+    with writer.saving(fig, "Flight Graphs/7-15.2_flight_test_gif.gif", 100):
+        for i in range(start, (start+len(own_x[start:end])+2)):
             
             # draw own line
             own_line.set_data(own_x[start:i], own_y[start:i])
@@ -192,7 +192,7 @@ def main(graph_name: str, file_name: str, start: int, end: int):
             writer.grab_frame()
 
     #plt.show() # graph image
-    print(len(own_x))
+    #print(len(own_x))
 
 if __name__ == '__main__':
     main(title_of_graph, name_of_file, start, end)
