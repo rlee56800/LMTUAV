@@ -148,10 +148,10 @@ def main(graph_name: str, file_name: str, start: int, end: int):
 
     ### gif continued
     metadata = dict(title = 'Movie', artist = 'Orange Joe')
-    writer = PillowWriter(fps = 10, metadata=metadata) # for gif
-    #writer = FFMpegWriter(fps = 10, metadata=metadata) # for mp4
+    #writer = PillowWriter(fps = 10, metadata=metadata) # for gif
+    writer = FFMpegWriter(fps = 10, metadata=metadata) # for mp4
 
-    with writer.saving(fig, "Flight Graphs/7-15.2_flight_test_gif.gif", 100):
+    with writer.saving(fig, "Flight Graphs/7-15.2_flight_test_mp4.mp4", 100): # also change .gif or .mp4
         for i in range(start, (start+len(own_x[start:end])+2)):
             
             # draw own line
