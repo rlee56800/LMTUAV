@@ -36,7 +36,6 @@ def splitter(input_str: str, isLat: bool):
         return float(i[2][:-1])
 
 def main(graph_name: str, file_name: str, start: int, end: int):
-#def main(graph_name: str, file_name: str, map_intruder: int, predicted_indices = [], plotted_point = [], predicted_collision_point = []):
     ########## Graphing ##########
     #y is latitude, x is longitude
     global own_x, own_y, intr_x, intr_y, avoid_x, avoid_y, all_avoid_x, all_avoid_y, save_next
@@ -49,9 +48,9 @@ def main(graph_name: str, file_name: str, start: int, end: int):
     all_avoid_x = [] # collection of avoid_x values (array of arrays)
     all_avoid_y = [] # collection of avoid_y values (array of arrays)
     save_next = False # save value after predict
-    home = [-117.8111693, 34.0436009] # lon/lat of home [lon, lat]
-    wp_x = [-117.8124583, -117.8135955, -117.8120935] # lon of wps
-    wp_y = [34.0422674, 34.0426853, 34.0441788] # lat of wps
+    home = [-117.8111693, 34.0436009] # lon/lat of home [lon, lat]; CHANGE MANUALLY
+    wp_x = [-117.8124583, -117.8135955, -117.8120935] # lon of wps; CHANGE MANGUALLY
+    wp_y = [34.0422674, 34.0426853, 34.0441788] # lat of wps; CHANGE MANUALLY
 
     with open(file_name) as file:
         for line in file:
@@ -79,7 +78,6 @@ def main(graph_name: str, file_name: str, start: int, end: int):
 
                 avoid_x.append(own_x[-1])
                 avoid_y.append(own_y[-1])
-            #print(avoid_x, avoid_y)
 
     if avoid_x:
         all_avoid_x.append(avoid_x)
@@ -104,10 +102,6 @@ def main(graph_name: str, file_name: str, start: int, end: int):
     # own_line, = plt.plot([], [], 'k-') # line for the ownship
     # intr_line, = plt.plot([], [], color='orange') # line for the intruder
     # # for avoid points
-    # # avoid1_line, = plt.plot([], [], color='blue') # yuck!
-    # # avoid2_line, = plt.plot([], [], color='blue') # yuck!
-    # # cur_avoid = 0 # current avoid section (which array)
-    # # cur_avoid_pt = 0 # current avoid point (which value)
     # cur_avoid = 0 # current avoid maneuver (first, second, etc)
     # cur_point = 0 # current point within the avoid maneuver
     # avoidance = {} # plt.plot lines stored in a dictionary, using cur_avoid as keys
@@ -197,4 +191,3 @@ def main(graph_name: str, file_name: str, start: int, end: int):
 
 if __name__ == '__main__':
     main(title_of_graph, name_of_file, start, end)
-    #main(title_of_graph, name_of_file, show_intruder, show_predicted)
