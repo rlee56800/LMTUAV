@@ -182,8 +182,8 @@ def main(graph_name: str, file_name: str, start: int, end: int):
     #writer = PillowWriter(fps = 10, metadata=metadata) # for gif
     writer = FFMpegWriter(fps = 10, metadata=metadata) # for mp4
 
-    with writer.saving(fig, "Flight Graphs/7-07_flight_test_video.mp4", 100):
-        for i in range(start, end):
+    with writer.saving(fig, "Flight Graphs/7-07_flight_test_mp4.mp4", 100):
+        for i in range(start, end+1):
             
             # draw own line
             own_line.set_data(own_x[start:i], own_y[start:i])
