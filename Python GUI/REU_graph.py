@@ -20,8 +20,8 @@ f.close()
 title_of_graph = 'Flight Graph: 7/15 Flight Test 3'
 name_of_file = 'Python GUI/Log Outputs/flightTest_log_output_2022_07_15.3.txt'
 ## NOTE: check if file has completed time stamps (i.e. has both future x AND y pos)
-start = 27
-end = 50
+start = 50
+end = 75
 # show_predicted = [] # index/indices of value to show predicted values
 # show_intruder = 1
 
@@ -99,7 +99,7 @@ def main(graph_name: str, file_name: str, start: int, end: int):
 
 
     # ### GENERATE GIF ANIMATION FILE ###
-    # # using https://www.youtube.com/watch?v=bNbN9yoEOdU
+    # using https://www.youtube.com/watch?v=bNbN9yoEOdU
     # fig = plt.figure(figsize=(10, 7))
     # own_line, = plt.plot([], [], 'k-') # line for the ownship
     # intr_line, = plt.plot([], [], color='orange') # line for the intruder
@@ -113,8 +113,8 @@ def main(graph_name: str, file_name: str, start: int, end: int):
     # avoidance = {} # plt.plot lines stored in a dictionary, using cur_avoid as keys
     
     # # graph window (may need to change +-)
-    # plt.xlim(min(own_x)-0.0005, max(own_x)+0.0005)
-    # plt.ylim(min(own_y)-0.0005, max(own_y)+0.0005)
+    # plt.xlim(min(own_x[start:end])-0.0005, max(own_x[start:end])+0.0005)
+    # plt.ylim(min(own_y[start:end])-0.0005, max(own_y[start:end])+0.0005)
     
     # ### gif code continued below (this order matters :P )
     
@@ -148,10 +148,10 @@ def main(graph_name: str, file_name: str, start: int, end: int):
 
     ### gif continued
     # metadata = dict(title = 'Movie', artist = 'Orange Joe')
-    # #writer = PillowWriter(fps = 10, metadata=metadata) # for gif
-    # writer = FFMpegWriter(fps = 10, metadata=metadata) # for mp4
+    # writer = PillowWriter(fps = 10, metadata=metadata) # for gif
+    # #writer = FFMpegWriter(fps = 10, metadata=metadata) # for mp4
 
-    # with writer.saving(fig, "Flight Graphs/7-15.2_flight_test_mp4.mp4", 100): # also change .gif or .mp4
+    # with writer.saving(fig, "Flight Graphs/7-15.3_flight_test_gif.gif", 100): # also change .gif or .mp4
     #     for i in range(start, (start+len(own_x[start:end])+2)):
             
     #         # draw own line
@@ -193,6 +193,7 @@ def main(graph_name: str, file_name: str, start: int, end: int):
 
     plt.show() # graph image
     #print(len(own_x))
+    print(('finito'))
 
 if __name__ == '__main__':
     main(title_of_graph, name_of_file, start, end)
