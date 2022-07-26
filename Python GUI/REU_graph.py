@@ -17,8 +17,8 @@ f.close()
 
 ########## CHANGE FILE NAME HERE ##########
 # This is placeholder data/allows program to be run without GUI
-title_of_graph = 'Flight Graph: 7/15 Flight Test 2'
-name_of_file = 'Python GUI/Log Outputs/flightTest_log_output_2022_07_15.2.txt'
+title_of_graph = 'Flight Graph: 7/15 Flight Test 3'
+name_of_file = 'Python GUI/Log Outputs/flightTest_log_output_2022_07_15.3.txt'
 ## NOTE: check if file has completed time stamps (i.e. has both future x AND y pos)
 start = 27
 end = 50
