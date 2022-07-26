@@ -17,11 +17,11 @@ f.close()
 
 ########## CHANGE FILE NAME HERE ##########
 # This is placeholder data/allows program to be run without GUI
-title_of_graph = 'Flight Graph: 7/08 Flight Test 1'
-name_of_file = 'Python GUI/Log Outputs/flightTest_log_output_2022_07_08.1.txt'
+title_of_graph = 'Flight Graph: 7/08 Flight Test 2'
+name_of_file = 'Python GUI/Log Outputs/flightTest_log_output_2022_07_08.2.txt'
 ## NOTE: check if file has completed time stamps (i.e. has both future x AND y pos)
-start = 30
-end = 80
+start = 120
+end = 180
 
 def splitter(input_str: str, isX: bool):
     # takes floats out of given String
@@ -58,20 +58,21 @@ def main(graph_name: str, file_name: str, start: int, end: int):
 
     with open(file_name) as file:
         for line in file:
+            #print(line)
             # if 'MISSION_ITEM' in line:
             #     cur_lat = splitter2(line, 36)
             #     cur_lon = splitter2(line, 39)
             #     if cur_lat != 0.0 and cur_lon != 0.0:
             #         waypoint_latitude.append(cur_lat)
             #         waypoint_longitude.append(cur_lon)
-            if 'own position' in line:
+            if 'own position (x,y):' in line:
                 own_x.append(splitter(line, True))
                 own_y.append(splitter(line, False))
                 if save_next: # after avoid() is called
                     avoid_x.append(own_x[-1])
                     avoid_y.append(own_y[-1])
                     save_next = False
-            elif 'intr position' in line:
+            elif 'intr position (x,y)' in line:
                 intr_x.append(splitter(line, True))
                 intr_y.append(splitter(line, False))
             if 'avoid' in line:
@@ -95,30 +96,30 @@ def main(graph_name: str, file_name: str, start: int, end: int):
     
 
     # ## GENERATE GRAPH IMAGE ###
-    plt.figure(figsize=(10, 7)) # Window size
+    # plt.figure(figsize=(10, 7)) # Window size
 
-    # for current vehicle
-    #plt.scatter(lattitude[1:], longitude[1:], color='black') # Creates scatter plot (dots)
-    plt.plot(own_x[start:end], own_y[start:end], color='black', zorder=1) # Creates line for ownship
+    # # for current vehicle
+    # #plt.scatter(lattitude[1:], longitude[1:], color='black') # Creates scatter plot (dots)
+    # plt.plot(own_x[start:end], own_y[start:end], color='black', zorder=1) # Creates line for ownship
 
-    plt.plot(intr_x[start:end], intr_y[start:end], color='orange', zorder=1) # Creates line for intruder
+    # plt.plot(intr_x[start:end], intr_y[start:end], color='orange', zorder=1) # Creates line for intruder
 
-    for i in range(len(all_avoid_x)):
-        plt.plot(all_avoid_x[i], all_avoid_y[i], color = 'blue', zorder = 1) # creates line for each avoid maneuver
+    # for i in range(len(all_avoid_x)):
+    #     plt.plot(all_avoid_x[i], all_avoid_y[i], color = 'blue', zorder = 1) # creates line for each avoid maneuver
 
 
     ### GENERATE GIF ANIMATION FILE ###
     # using https://www.youtube.com/watch?v=bNbN9yoEOdU
-    # fig = plt.figure(figsize=(10, 7))
-    # own_line, = plt.plot([], [], 'k-') # line for the ownship
-    # intr_line, = plt.plot([], [], color='orange') # line for the intruder
-    # # for avoid points
-    # cur_avoid = 0 # current avoid maneuver (first, second, etc)
-    # cur_point = 0 # current point within the avoid maneuver
-    # avoidance = {} # plt.plot lines stored in a dictionary, using cur_avoid as keys
+    fig = plt.figure(figsize=(10, 7))
+    own_line, = plt.plot([], [], 'k-') # line for the ownship
+    intr_line, = plt.plot([], [], color='orange') # line for the intruder
+    # for avoid points
+    cur_avoid = 0 # current avoid maneuver (first, second, etc)
+    cur_point = 0 # current point within the avoid maneuver
+    avoidance = {} # plt.plot lines stored in a dictionary, using cur_avoid as keys
     
-    # plt.xlim(min(own_x[start:end])-0.0005, max(own_x[start:end])+0.0005)
-    # plt.ylim(min(own_y[start:end])-0.0005, max(own_y[start:end])+0.0005)
+    plt.xlim(min(own_x[start:end])-0.0005, max(own_x[start:end])+0.0005)
+    plt.ylim(min(own_y[start:end])-0.0005, max(own_y[start:end])+0.0005)
     ### gif code continued below (this order matters :P )
     
     
@@ -144,51 +145,51 @@ def main(graph_name: str, file_name: str, start: int, end: int):
     
 
     ### gif continued
-    # metadata = dict(title = 'Movie', artist = 'Orange Joe')
-    # #writer = PillowWriter(fps = 10, metadata=metadata) # for gif
-    # writer = FFMpegWriter(fps = 10, metadata=metadata) # for mp4
+    metadata = dict(title = 'Movie', artist = 'Orange Joe')
+    #writer = PillowWriter(fps = 10, metadata=metadata) # for gif
+    writer = FFMpegWriter(fps = 10, metadata=metadata) # for mp4
 
-    # with writer.saving(fig, "Flight Graphs/7-08.1_flight_test_mp4.mp4", 100):
-    #     for i in range(start, end+1):
+    with writer.saving(fig, "Flight Graphs/7-08.2_flight_test_mp4.mp4", 100):
+        for i in range(start, end+1):
             
-    #         # draw own line
-    #         own_line.set_data(own_x[start:i], own_y[start:i])
+            # draw own line
+            own_line.set_data(own_x[start:i], own_y[start:i])
             
-    #         # draw intruder line
-    #         intr_line.set_data(intr_x[start:i], intr_y[start:i])
+            # draw intruder line
+            intr_line.set_data(intr_x[start:i], intr_y[start:i])
 
-    #         # draw avoidance lines
-    #         if (cur_avoid < len(all_avoid_x)):
-    #             if (cur_point < len(all_avoid_x[cur_avoid]) and 
-    #             ((own_x[i] == all_avoid_x[cur_avoid][cur_point]) and (own_y[i] == all_avoid_y[cur_avoid][cur_point]))):
-    #                 # if cur_point is within the range of the avoid values
-    #                 # and the current x value equals the current avoid value
+            # draw avoidance lines
+            if (cur_avoid < len(all_avoid_x)):
+                if (cur_point < len(all_avoid_x[cur_avoid]) and 
+                ((own_x[i] == all_avoid_x[cur_avoid][cur_point]) and (own_y[i] == all_avoid_y[cur_avoid][cur_point]))):
+                    # if cur_point is within the range of the avoid values
+                    # and the current x value equals the current avoid value
                     
-    #                 try:
-    #                     # checks if avoidance[cur_avoid] exists
+                    try:
+                        # checks if avoidance[cur_avoid] exists
 
-    #                     if avoidance[cur_avoid]:
-    #                         # if so, do nothing
-    #                         pass
+                        if avoidance[cur_avoid]:
+                            # if so, do nothing
+                            pass
 
-    #                 except:
-    #                     # if not, create it
-    #                     avoidance[cur_avoid], = plt.plot([], [], color='blue')
+                    except:
+                        # if not, create it
+                        avoidance[cur_avoid], = plt.plot([], [], color='blue')
                     
-    #                 avoidance[cur_avoid].set_data(all_avoid_x[cur_avoid][0:cur_point+1], all_avoid_y[cur_avoid][0:cur_point+1])
-    #                 #print(all_avoid_x[cur_avoid][0:cur_point+1], all_avoid_y[cur_avoid][0:cur_point+1])
+                    avoidance[cur_avoid].set_data(all_avoid_x[cur_avoid][0:cur_point+1], all_avoid_y[cur_avoid][0:cur_point+1])
+                    #print(all_avoid_x[cur_avoid][0:cur_point+1], all_avoid_y[cur_avoid][0:cur_point+1])
 
-    #                 cur_point += 1
-    #                 #print(cur_avoid, cur_point)
-    #             elif cur_point == len(all_avoid_x[cur_avoid]):
-    #                 # else cur_point no longer points to an avoid value
+                    cur_point += 1
+                    #print(cur_avoid, cur_point)
+                elif cur_point == len(all_avoid_x[cur_avoid]):
+                    # else cur_point no longer points to an avoid value
 
-    #                 cur_avoid += 1 # move to next maneuver
-    #                 cur_point = 0 # reset cur_point
+                    cur_avoid += 1 # move to next maneuver
+                    cur_point = 0 # reset cur_point
             
-    #         writer.grab_frame()
+            writer.grab_frame()
 
-    plt.show() # graph image
+    #plt.show() # graph image
 
 if __name__ == '__main__':
     main(title_of_graph, name_of_file, start, end)
