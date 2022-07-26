@@ -1,0 +1,7 @@
+2022_07_07 - 0-30; REU_graph_july7.py
+2022_07_08.1 30-80 -; REU_graph_july14v2.py
+2022_07_08.2 120-180 -; REU_graph_july14v2.py
+2022_07_14 - 0-46; sim; REU_graph_july14v2.py
+2022_07_14.1 - 0-45; sim (no avoid; not graphed)
+2022_07_15.2 - 27-50; REU_graph.py
+2022_07_15.3 - 50-75; changed tolerance; REU_graph.py
