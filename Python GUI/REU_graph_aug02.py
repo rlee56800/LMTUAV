@@ -31,9 +31,9 @@ def splitter(input_str: str, isLat: bool):
     # i = ["text", "position:", "34.1234,", "-117.1234"]
     #                               Lon          Lat
     if isLat:
-        return float(i[3][1:-1])
+        return float(i[3][1:-1])/139
     else:
-        return float(i[4][:-1])
+        return float(i[4][:-1])/111
 
 def main(graph_name: str, file_name: str, start: int, end: int):
     ########## Graphing ##########
@@ -61,9 +61,9 @@ def main(graph_name: str, file_name: str, start: int, end: int):
                     avoid_x.append(own_x[-1])
                     avoid_y.append(own_y[-1])
                     save_next = False
-            elif 'intr position' in line:
-                intr_x.append(splitter(line, True))
-                intr_y.append(splitter(line, False))
+            # elif 'intr position' in line:
+            #     intr_x.append(splitter(line, True))
+            #     intr_y.append(splitter(line, False))
             if 'avoid' in line:
                 save_next = True
 
@@ -82,6 +82,32 @@ def main(graph_name: str, file_name: str, start: int, end: int):
     if avoid_x:
         all_avoid_x.append(avoid_x)
         all_avoid_y.append(avoid_y)
+    
+    # for i in range (1, 251):
+    #     t = i/2000
+
+    #     newintrX = -1.026*t + (-117.8125119*139)
+    #     newintrY =  -2.097*t + (34.0431653*111)
+
+    #     if i % 30 == 0:
+    #         #print("new intr position: (", newintrX, ",", newintrY, ")")
+    #         intr_x.append(newintrX/139)
+    #         intr_y.append(newintrY/111)
+    #         #f.write("new intr pos: (" + str(newintrX) + ", " + str(newintrY) + ")\n")
+    for i in range (1, 251):
+        t = i/2000
+
+        newintrX = -1.026*t + (-117.8125119*139)
+        newintrY =  -2.097*t + (34.0431653*111)
+
+        if i % 30 == 0:
+            print("new intr position: (", newintrX, ",", newintrY, ")")
+            intr_x.append(newintrX/139)
+            intr_y.append(newintrY/111)
+            #f.write("new intr pos: (" + str(newintrX) + ", " + str(newintrY) + ")\n")
+
+    intr_x = intr_x[::-1]
+    intr_y = intr_y[::-1]
 
     ## GENERATE GRAPH IMAGE ###
     # plt.figure(figsize=(10, 7)) # Window size
@@ -107,10 +133,10 @@ def main(graph_name: str, file_name: str, start: int, end: int):
     avoidance = {} # plt.plot lines stored in a dictionary, using cur_avoid as keys
     
     # graph window (may need to change +-)
-    # plt.xlim(min(own_x[start:end])-0.0005, max(own_x[start:end])+0.0005)
-    # plt.ylim(min(own_y[start:end])-0.0005, max(own_y[start:end])+0.0005)
-    plt.xlim(-16376.8, -16375.4)
-    plt.ylim(3778.4, 3779.4)
+    plt.xlim(min(own_x[start:end])-0.0005, max(own_x[start:end])+0.0005)
+    plt.ylim(min(own_y[start:end])-0.0005, max(own_y[start:end])+0.0005)
+    # plt.xlim(-117.817, -117.802)
+    # plt.ylim(34.04, 34.7)
     
     ### gif code continued below (this order matters :P )
     
@@ -124,9 +150,10 @@ def main(graph_name: str, file_name: str, start: int, end: int):
         plt.scatter(intr_x[0], intr_y[0], color = 'orange')
     else:
         # intruder moves and start/end points are added
-        plt.plot(intr_x[start], intr_y[start], color = 'green', marker = 'X', markersize = '10', zorder = 1) # Creates starting point for intruder
-        plt.plot(intr_x[end], intr_y[end], color = 'red', marker = 'X', markersize = '10', zorder = 1) # Creates ending point for intruder
+        plt.plot(intr_x[0], intr_y[0], color = 'green', marker = 'X', markersize = '10', zorder = 1) # Creates starting point for intruder
+        plt.plot(intr_x[-1], intr_y[-1], color = 'red', marker = 'X', markersize = '10', zorder = 1) # Creates ending point for intruder
 
+    #plt.plot(intr_x, intr_y, color = 'red', marker = 'x', zorder = 1) # crash location
     # plt.plot(home[0], home[1], color = 'black', marker = '*', zorder = 1) # Creates home point
     # for i in range(len(wp_x)):
     #     # Creates waypoints
@@ -147,14 +174,16 @@ def main(graph_name: str, file_name: str, start: int, end: int):
     #writer = PillowWriter(fps = 10, metadata=metadata) # for gif
     writer = FFMpegWriter(fps = 5, metadata=metadata) # for mp4
 
-    with writer.saving(fig, "Flight Graphs/7_28_sim.mp4", 100): # also change .gif or .mp4
+    with writer.saving(fig, "Flight Graphs/8_02_sim.mp4", 100): # also change .gif or .mp4
         for i in range(start, (start+len(own_x[start:end])+2)):
             
             # draw own line
             own_line.set_data(own_x[start:i], own_y[start:i])
             
             # draw intruder line
-            intr_line.set_data(intr_x[start:i], intr_y[start:i])
+            if i <= len(intr_x):
+                intr_line.set_data(intr_x[start:i], intr_y[start:i])
+                #print(intr_x[i], intr_y[i])
 
             # draw avoidance lines
             if (cur_avoid < len(all_avoid_x)):
