@@ -17,6 +17,7 @@ from asyncio.windows_events import NULL
 from ctypes.wintypes import WPARAM
 from distutils.fancy_getopt import wrap_text
 from operator import truediv
+from this import d
 
 from matplotlib.pyplot import switch_backend
 from dronekit import connect, VehicleMode, LocationGlobalRelative, Command, Battery, LocationGlobal, Attitude, LocationLocal
@@ -124,10 +125,10 @@ class Plane():
         self.crash_lon = 0.0                #- longitude of crash
         self.avoiding = False               #- keeps track of when avoidance command is sent
 
-        self.direction = "LEFT"
-
         self.avoidwpX = 0
         self.avoidwpY = 0
+        self.direction = "LEFT"             # avoid direction
+        self.ahead = 0                      #- 0 = avoid bc close, 1 = avoid bc predicted in future
 
     def _connect(self, connection_string):      #-- (private) Connect to Vehicle
         """ (private) connect with the autopilot
@@ -589,11 +590,15 @@ class Plane():
                     self.avoiding = True
                     n = 0
                     f = open(outputFile, "a")
-                    while (abs(self.receive_lattitude-self.pos_lat)*111 < XAvoidTolerance and abs(self.receive_longitude-self.pos_lon)*139):
-                        time.sleep(1)
-                        n+=1
-                        print("called while", n, "times")
-                        f.write("called while " + str(n) + " times\n")
+                    if self.ahead:
+                        time.sleep(8)
+                        print("avoiding for 10 sec")
+                    else:
+                        while ( abs(self.receive_lattitude-self.pos_lat)*111 < XAvoidTolerance and abs(self.receive_longitude-self.pos_lon)*139 < XAvoidTolerance):
+                            time.sleep(1)
+                            n+=1
+                            print("called while", n, "times")
+                            f.write("called while " + str(n) + " times\n")
                     f.write("\n")
                     f.close()
                     print("end sleep")
@@ -625,9 +630,9 @@ class Plane():
                 #break
                     
             else: # TESTING ONLY; REMOVE LATER PLS
-                print("************************************************************")
+                # print("************************************************************")
                 print("                 No Predicted Collision")
-                print("************************************************************\n\n")
+                # print("************************************************************\n\n")
                 f = open(outputFile, "a")
                 f.write("************************************************************\n")
                 f.write("                 No Predicted Collision\n")
@@ -661,126 +666,133 @@ class Plane():
         #futurePosZ = PosZ + VelZ * time
         return futurePosX
 
-    # #def collisionPredictedCompare(self, collisionPredicted, distX, distY, distZ, XAvoidTolerance, YAvoidTolerance, ZAvoidTolerance):
-    # def collisionPredictedCompare(self, XAvoidTolerance):
-    #     f = open(outputFile, "a")
-    #     # vector math (make function later)
-    #     ownX = self.pos_lon * 139
-    #     ownY = self.pos_lat * 111
-    #     print("own: (", ownX, ownY, ")")
-    #     f.write("own position (x,y): (" + str(ownX) + ", " + str(ownY) + ")\n")
+    #def collisionPredictedCompare(self, collisionPredicted, distX, distY, distZ, XAvoidTolerance, YAvoidTolerance, ZAvoidTolerance):
+    """
+    def collisionPredictedCompare(self, XAvoidTolerance):
+        f = open(outputFile, "a")
+        # vector math (make function later)
+        ownX = self.pos_lon * 139
+        ownY = self.pos_lat * 111
+        print("own: (", ownX, ownY, ")")
+        f.write("own position (x,y): (" + str(ownX) + ", " + str(ownY) + ")\n")
 
-    #     intrX = self.receive_longitude * 139
-    #     intrY = self.receive_lattitude * 111
-    #     print("intr: (", intrX, intrY, ")")
-    #     f.write("intr position (x,y): (" + str(intrX) + ", " + str(intrY) + ")\n")
+        intrX = self.receive_longitude * 139
+        intrY = self.receive_lattitude * 111
+        print("intr: (", intrX, intrY, ")")
+        f.write("intr position (x,y): (" + str(intrX) + ", " + str(intrY) + ")\n")
 
-    #     # put into if case 2 statement
-    #     self.avoidwpX = intrX 
-    #     self.avoidwpY = intrY
+        # put into if case 2 statement
+        self.avoidwpX = intrX 
+        self.avoidwpY = intrY
 
-    #     if self.receive_velocity[0] > 0:
-    #         self.avoidwpX -= XAvoidTolerance
-    #     else:
-    #         self.avoidwpX += XAvoidTolerance
+        if self.receive_velocity[0] > 0:
+            self.avoidwpX -= XAvoidTolerance
+        else:
+            self.avoidwpX += XAvoidTolerance
 
-    #     if self.receive_velocity[1] > 0:
-    #         self.avoidwpY -= XAvoidTolerance
-    #     else:
-    #         self.avoidwpY += XAvoidTolerance
-    #     # end if case 2
+        if self.receive_velocity[1] > 0:
+            self.avoidwpY -= XAvoidTolerance
+        else:
+            self.avoidwpY += XAvoidTolerance
+        # end if case 2
 
-    #     # thank you stack overflow
-    #     # https://stackoverflow.com/questions/2931573/determining-if-two-rays-intersect
+        # thank you stack overflow
+        # https://stackoverflow.com/questions/2931573/determining-if-two-rays-intersect
 
-    #     # lat/lon fix ? 
-    #     dx = (self.receive_longitude - self.pos_lon) * 139 
-    #     dy = (self.receive_lattitude - self.pos_lat) * 111 
-    #     det = self.receive_velocity[0] * self.vy - self.receive_velocity[1] * self.vx
+        # lat/lon fix ? 
+        dx = (self.receive_longitude - self.pos_lon) * 139 
+        dy = (self.receive_lattitude - self.pos_lat) * 111 
+        det = self.receive_velocity[0] * self.vy - self.receive_velocity[1] * self.vx
 
-    #     print("Distance between own/intr x:", ownX - intrX)
-    #     print("Distance between own/intr y:", ownY - intrY)
-    #     f.write("distance between own and intruder: (" + str(ownX-intrX) + ", " + str(ownY-intrY) + ")\n")
+        print("Distance between own/intr x:", ownX - intrX)
+        print("Distance between own/intr y:", ownY - intrY)
+        f.write("distance between own and intruder: (" + str(ownX-intrX) + ", " + str(ownY-intrY) + ")\n")
 
-    #     # stationary:
-    #     # if abs(self.receive_velocity[0]) < 0.1 and abs(self.receive_velocity[1]) < 0.1 and abs(dx) < XAvoidTolerance and abs(dy) < XAvoidTolerance:
-    #     if abs(dx) < XAvoidTolerance and abs(dy) < XAvoidTolerance:
-    #         if abs(self.vx) < 0.5 and abs(self.vy) < 0.5:
-    #             print("STATIONARY OBJECT DETECTED")
-    #             f.write("stationary object detected\n")
-    #         print("velocity:", self.vx, self.vy)
-    #         f.write("own velocity: (" + str(self.vx) + "m/s, " + str(self.vy) + "m/s)\n")
-    #         f.write("intruder velocity: (" + str(self.receive_velocity[0]) + "m/s, " + str(self.receive_velocity[1]) + "m/s)\n")
-    #         self.crash_lat = self.receive_lattitude
-    #         self.crash_lon = self.receive_longitude
-    #         dist_self = ( ((((self.crash_lat-self.pos_lat)*111)**2) + (((self.crash_lon-self.pos_lon)*139)**2))**(1/2) ) # distance collision is from self
-    #         dist_intr = ( ((((self.crash_lat-self.receive_lattitude)*111)**2) + (((self.crash_lon-self.receive_longitude)*139)**2))**(1/2) ) # distance collision is from intruder
-    #         print('crash distance from self / intruder')
-    #         print(dist_self, dist_intr)
-    #         print("--------------------------------")
-    #         #print("angle between self and intruder vectors:\n", angle)
-    #         print("--------------------------------")
-    #         f.close()
-    #         return True
+        # stationary:
+        # if abs(self.receive_velocity[0]) < 0.1 and abs(self.receive_velocity[1]) < 0.1 and abs(dx) < XAvoidTolerance and abs(dy) < XAvoidTolerance:
+        # TODO: MAKE CRASH POSITION MIDPOINT SO ANGLE CALCULATIONS WORK
+        if abs(dx) < XAvoidTolerance and abs(dy) < XAvoidTolerance:
+            print("from distance")
+            if abs(self.vx) < 0.5 and abs(self.vy) < 0.5:
+                print("STATIONARY OBJECT DETECTED")
+                f.write("stationary object detected\n")
+            print("velocity:", self.vx, self.vy)
+            f.write("own velocity: (" + str(self.vx) + "m/s, " + str(self.vy) + "m/s)\n")
+            f.write("intruder velocity: (" + str(self.receive_velocity[0]) + "m/s, " + str(self.receive_velocity[1]) + "m/s)\n")
+            self.crash_lat = self.receive_lattitude
+            self.crash_lon = self.receive_longitude
+            dist_self = ( ((((self.crash_lat-self.pos_lat)*111)**2) + (((self.crash_lon-self.pos_lon)*139)**2))**(1/2) ) # distance collision is from self
+            dist_intr = ( ((((self.crash_lat-self.receive_lattitude)*111)**2) + (((self.crash_lon-self.receive_longitude)*139)**2))**(1/2) ) # distance collision is from intruder
+            print('crash distance from self / intruder')
+            print(dist_self, dist_intr)
+            print("--------------------------------")
+            #print("angle between self and intruder vectors:\n", angle)
+            print("--------------------------------")
+            f.close()
+            self.ahead = 0
+            return True
 
-    #     if det == 0:
-    #         return False
-    #     u = (dy * self.receive_velocity[0] - dx * self.receive_velocity[1]) / det
-    #     v = (dy * self.vx - dx * self.vy) / det
+        if det == 0:
+            return False
+        u = (dy * self.receive_velocity[0] - dx * self.receive_velocity[1]) / det
+        v = (dy * self.vx - dx * self.vy) / det
 
-    #     # intersection equations p = [self current position] + [self current velocity] * u
-    #     #                        p = [intr current position] + [intr current velocity] * v
-    #     # if u and v are positive, point of intersection is in front of both
-    #     # if u is within v +-1, both vehicles are at the intersection at similar times (i.e. will crash)
-    #     if (u >= 0 and v >= 0):# and (u >= v-10 and u <= v+10):
-    #         print(u, v)
-    #         self.crash_lat = ((self.pos_lat * 111) + self.vy * u)/111 # no particular reason to use this over the v
-    #         self.crash_lon = ((self.pos_lon * 139) + self.vx * u)/139
+        # intersection equations p = [self current position] + [self current velocity] * u
+        #                        p = [intr current position] + [intr current velocity] * v
+        # if u and v are positive, point of intersection is in front of both
+        if u >= 0 and v >= 0:
+            self.crash_lat = ((self.pos_lat * 111) + self.vy * u)/111 # no particular reason to use this over the v
+            self.crash_lon = ((self.pos_lon * 139) + self.vx * u)/139
 
-    #         # new code:
-    #         crashX = self.crash_lon * 139
-    #         crashY = self.crash_lat * 111
+            # new code:
+            crashX = self.crash_lon * 139
+            crashY = self.crash_lat * 111
 
-    #         docX = abs(ownX - crashX)
-    #         docY = abs(ownY - crashY)
+            # distance own to crash
+            # final - initial 
+            docX = crashX - ownX
+            docY = crashY - ownY
 
-    #         dciX = abs(intrX - crashX)
-    #         dciY = abs(intrY - crashY)
+            # distance own to crash
+            # final - initial 
+            dciX = crashX - intrX
+            dciY = crashY - intrY
 
-    #         if crashX < ownX:
-    #             docX = docX * -1
-    #         if crashY < ownY:
-    #             docY = docY * -1
+            dotprod = docX*dciX + docY*dciY
+            det = docX*dciY - docY*dciX
 
-    #         if crashX < intrX:
-    #             dciX = dciX * -1
-    #         if crashY < intrY:
-    #             dciY = dciY * -1
+            angle = math.degrees(math.atan2(det, dotprod))
 
-    #         lo = math.sqrt( (docX)**2 + (docY)**2 )
-    #         li = math.sqrt( (dciX)**2 + (dciY)**2 )
-    #         dotprod = docX*dciX + docY*dciY
+            if 0 <= angle <= 90 or -180 <= angle <= -90:
+                print("left")
+                self.direction = "LEFT"
+            else:
+                print("right")
+                self.direction = "RIGHT"
+            # end new code
 
-    #         angle = math.degrees(math.acos( (dotprod)/(lo*li) ))
-    #         # end new code
+            # distance formula: sqrt( (x2-x1)^2 + (y2-y1)^2 )
+            #                   ( (  ((x2-x1)**2) + ((y2-y1)**2)  )**(1/2) )
+            dist_self = ( ((((self.crash_lat-self.pos_lat)*111)**2) + (((self.crash_lon-self.pos_lon)*139)**2))**(1/2) ) # distance collision is from self
+            dist_intr = ( ((((self.crash_lat-self.receive_lattitude)*111)**2) + (((self.crash_lon-self.receive_longitude)*139)**2))**(1/2) ) # distance collision is from intruder
 
-    #         # distance formula: sqrt( (x2-x1)^2 + (y2-y1)^2 )
-    #         #                   ( (  ((x2-x1)**2) + ((y2-y1)**2)  )**(1/2) )
-    #         dist_self = ( ((((self.crash_lat-self.pos_lat)*111)**2) + (((self.crash_lon-self.pos_lon)*139)**2))**(1/2) ) # distance collision is from self
-    #         dist_intr = ( ((((self.crash_lat-self.receive_lattitude)*111)**2) + (((self.crash_lon-self.receive_longitude)*139)**2))**(1/2) ) # distance collision is from intruder
+            print('crash distance from self / intruder')
+            print(dist_self, dist_intr)
+            print("--------------------------------")
+            print("angle between self and intruder vectors:\n", angle)
+            print("angle: " + str(angle) + "\n")
+            print("--------------------------------")
+            if min(dist_self, dist_intr) <= XAvoidTolerance:
+            #if dist_self <= XAvoidTolerance:
+                print(XAvoidTolerance)
+                f.close()
+                print("from velocity vectors")
+                self.ahead = 1
+                return True
+        f.close()
+        return False
+    """
 
-    #         print('crash distance from self / intruder')
-    #         print(dist_self, dist_intr)
-    #         print("--------------------------------")
-    #         print("angle between self and intruder vectors:\n", angle)
-    #         print("angle: " + str(angle) + "\n")
-    #         print("--------------------------------")
-    #         if min(dist_self, dist_intr) <= XAvoidTolerance:
-    #             print(XAvoidTolerance)
-    #             f.close()
-    #             return True
-    #     f.close()
-    #     return False
     def collisionPredictedCompare(self, XAvoidTolerance):
         f = open(outputFile, "a")
         ownX = self.pos_lon * 139
@@ -820,6 +832,7 @@ class Plane():
 
         if abs(dx) < XAvoidTolerance and abs(dy) < XAvoidTolerance:
             print("from distance")
+            self.ahead = 0
             foundX = True
             foundY = True
             if abs(self.vx) < 0.5 and abs(self.vy) < 0.5:
@@ -834,8 +847,9 @@ class Plane():
             # self.ahead = 0
             # return True
    
-        for i in range (1, 201):
-            t = i/100
+        for i in range (1, 301):
+            t = i/2000
+            # WAS 100, 2000 PROBABLY BETTER
 
             newX = vx*t + ownX
             newY = vy*t + ownY
@@ -843,20 +857,32 @@ class Plane():
             newintrX = intrvx*t + intrX
             newintrY = intrvy*t + intrY
 
+            if i % 30 == 0:
+                print("new intr position: (", newintrX, ",", newintrY, ")")
+                f.write("new intr pos: (" + str(newintrX) + ", " + str(newintrY) + ")\n")
+
             dx = newX-newintrX
             dy = newY-newintrY
 
-            if abs(dx) < XAvoidTolerance:
+            # if abs(dx) < XAvoidTolerance:
+            #     foundX = True
+            #     self.crash_lon = newX/139
+            # if abs(dy) < XAvoidTolerance:
+            #     foundY = True
+            #     self.crash_lat = newY/111
+
+            if abs(dx) < XAvoidTolerance and abs(dy) < XAvoidTolerance:
                 foundX = True
-                self.crash_lon = newX/139
-            if abs(dy) < XAvoidTolerance:
                 foundY = True
+                self.crash_lon = newX/139
                 self.crash_lat = newY/111
+            
             if foundX and foundY:
                 print("collision found!")
                 break
         if foundX and foundY:
             print("from future calculations")
+            self.ahead = 1
             # new code:
             crashX = self.crash_lon * 139
             crashY = self.crash_lat * 111
@@ -897,6 +923,8 @@ class Plane():
         f.close()
         return False
 
+
+
     def chooseY(self, ypos, yneg):
         y = ypos
         if abs(ypos) > abs(yneg):
@@ -906,61 +934,6 @@ class Plane():
         return y
 
     def avoid(self, intruderX, ownX, intruderY, ownY, intVx, intVy):
-        """
-        h = abs(abs(intruderX) - abs(ownX)) # distance between x of both
-        k = abs(abs(intruderY) - abs(ownY)) # distance between y of both
-        a = 3 # constant value dependent on intruder velocity
-        b = 2 # constant value dependent on intruder velocity
-        d = (a**4)*(k**2) + (a**2)*(b**2)*(h**2)
-        u = ( (b**2)*(h**2) + (a**2)*(k**2) - (a**2)*(b**2) ) / ((b**2)*h)
-        sq = (b**4)*(h**3)*u*d - (u**2)*(b**4)*(h**2)*d + (a**4)*(b**4)*(h**2)*(k**2)*(u**2)
-       #sq = (b**4)*(h**3)*u*d + (u**2)*(b**4)*(h**2)*d + (a**4)*(b**4)*(h**2)*(k**2)*(u**2)
-        n = (a**2)*(b**2)*h*k*u
-
-
-        ypos = (sq**(0.5) + n) / d
-        yneg = ( n - (sq**(0.5))) / d
-        y = self.chooseY(ypos, yneg)
-        x = u - ( (y*(a**2)*k) / ((b**2)*h) )
-        #x = ownX
-        #y = ownY
-        #x += 15
-        #y += 15
-        print('~~~~~ LON LAT ~~~~~')
-        print(self.pos_lat) #y
-        print(self.pos_lon) #x
-
-        print('~~~~~ X Y VALUES ~~~~~')
-        print(x) #longitude
-        print(y) #latitude
-
-        #xAvoid = abs(x)/139 + self.pos_lat
-        #yAvoid = abs(y)/111 + self.pos_lon
-        # original
-        #xAvoid = ((abs(x) + (self.pos_lat * 139)) / 139)
-        #yAvoid = ((abs(y) + (self.pos_lon * 111)) / 111)
-        #zAvoid = 15
-
-        # lat/lon fix
-        lonAvoid = ((abs(x) + (self.pos_lon * 139)) / 139)
-        latAvoid = ((abs(y) + (self.pos_lat * 111)) / 111)
-        zAvoid = 15
-        # print("avoidance WP = (%s"%xAvoid,", %s"%yAvoid,", %s)"%zAvoid)
-        # print("go to avoidance waypoint")
-
-        if intVx > 0: # if vx positive
-            lonAvoid = abs(lonAvoid) * -1
-        else: # vx is negative
-            lonAvoid = abs(lonAvoid)
-    
-        if intVy > 0: # if vy positive
-            latAvoid = abs(latAvoid) * -1
-        else: # vy negative
-            latAvoid = abs(latAvoid)
-
-        wpAvoid = LocationGlobalRelative(latAvoid, lonAvoid, zAvoid)
-        return wpAvoid
-        """
         print("avoid called")
         f = open(outputFile, "a")
         f.write("avoid called\n")
@@ -970,12 +943,12 @@ class Plane():
         # latAvoid = self.avoidwpY/111
 
         # head on case
-        if self.direction == "RIGHT":
-            print("avoiding right")
-            newX = ownX - 20
+        if (self.vy > 0 and self.direction == "RIGHT") or (self.vy < 0 and self.direction == "LEFT"):
+            print("adding to wp avoid")
+            newX = ownX + 50 
         else:
-            print("avoiding left")
-            newX = ownX + 20
+            print("subtracting from wp avoid")
+            newX = ownX - 50
         newY = ownY + 10
 
         # lat/lon fix
@@ -1033,6 +1006,7 @@ class Plane():
             #print("end send ADSB function")
 
     def receive_ADSB_data(self):
+        """
         inactivityCounter = 0
         while True:
             print("In receive_ADSB_data function")
@@ -1077,21 +1051,26 @@ class Plane():
 
             time.sleep(1)
             print("end send ADSB function")
+            """
             
 
-        # while True:
-        #     print("receiving")
-        #     self.receive_msg = True
-        #     self.receive_lattitude = 36.0434543 #34.0434543
-        #     self.receive_longitude = -119.8128 # -117.8128
-        #     self.receive_velocity = [-self.vy, self.vx, self.vz]
+        while True:
+            print("receiving")
+            self.receive_msg = True
+            # self.receive_lattitude = 34.0434543 #34.0434543
+            # self.receive_longitude = -117.8128 # -117.8128
+            self.receive_lattitude = 34.0431653 #34.0434854
+            self.receive_longitude = -117.8125119 #-117.8131127
+            self.receive_velocity = [-1.026, -2.097, self.vz]
+            #self.receive_velocity = [2.097, -1.026, self.vz]
+            #self.receive_velocity = [-self.vy, self.vx, self.vz]
 
-        #     # print("intruder is at lat ",self.receive_lattitude)
-        #     # print("intruder is at lon", self.receive_longitude)
-        #     # print("intruder velocity is ",self.receive_velocity)
-        #     # #Variable Saving end
+            # print("intruder is at lat ",self.receive_lattitude)
+            # print("intruder is at lon", self.receive_longitude)
+            # print("intruder velocity is ",self.receive_velocity)
+            # #Variable Saving end
 
-        #     time.sleep(1)
+            time.sleep(1)
 
 
     def run(self):
