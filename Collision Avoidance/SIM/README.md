@@ -1,6 +1,6 @@
 # Simulation
 These files are using for simulation:
-* Open Mission Planner Simulation, select fixed-wing vehicle.
+* Open Mission Planner Simulation, select plane
 * Open terminal and type: python sim.py
 
 # Install Libraries:
