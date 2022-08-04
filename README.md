@@ -23,6 +23,7 @@ TO RUN SIMULATION:
 FOR FLIGHT TESTS:
 
 [Flight test checklist + preparation list](https://docs.google.com/document/d/1gMFSuG_smQsXwAwXmUEiAJuVNFO26PcVKZwJru81DXs/edit?usp=sharing)
+Code must be updated on the mini PC
 
 ### Xbee
 *Test Xbee communication*
@@ -35,4 +36,5 @@ FOR FLIGHT TESTS:
 ## Python GUI
 *Creates graphs based on log output files from flight tests/simulations*
 ### REU_graph.py
-*Contains code to create graphs; all other files are deprecated*
+*Contains code to create graphs*
+[download FFMPEG (for mp4 only)](https://www.ffmpeg.org/download.html#releases), then create Python GUI/ffmpeg_path.txt containing path to FFMPEG folder
