@@ -5,7 +5,7 @@ California Polytechnic University, Pomona, NSF REU project
 *Contains all Collision Avoidance code*
 
 ### Old Code
-*Deprecated code (there for reference)*
+*Deprecated code (for reference)*
 
 ### SIM
 *Contains collision avoidance algorithm*
@@ -13,6 +13,16 @@ California Polytechnic University, Pomona, NSF REU project
 **planeClass_SIM.py** - contains all code to run plane/collision detect and avoid
 
 **sim.py** - sets up plane and runs the code
+
+TO RUN SIMULATION:
+
+[Download + install doc (first page only)](https://docs.google.com/document/d/1vtebVqct-6iG-Gl9tCuxQ1Y9Y0l4teahLVSi1It4UV8/edit#heading=h.ps96o66qadty)
+
+[Run simulation](https://docs.google.com/document/d/1wIOfDXsOUm0eEDmwTvMMblGQ6kuzKih_Dn1TNJ8Jjfc/edit?usp=sharing) (setting up Xbees, using Mission Planner, running code)
+
+FOR FLIGHT TESTS:
+
+[Flight test checklist + preparation list](https://docs.google.com/document/d/1gMFSuG_smQsXwAwXmUEiAJuVNFO26PcVKZwJru81DXs/edit?usp=sharing)
 
 ### Xbee
 *Test Xbee communication*
