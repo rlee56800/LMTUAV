@@ -809,10 +809,8 @@ class Plane():
         print("intr: (", intrX, intrY, ")")
         f.write("intr position (x,y): (" + str(intrX) + ", " + str(intrY) + ")\n")
 
-        #self.avoidwpX = intrX 
-        #self.avoidwpY = intrY
-
         # thank you stack overflow
+        # (this was previous algorithm)
         # https://stackoverflow.com/questions/2931573/determining-if-two-rays-inters
 
         print("Distance between own/intr x:", ownX - intrX)
@@ -846,7 +844,8 @@ class Plane():
             # f.close()
             # self.ahead = 0
             # return True
-   
+
+        # calculates future positions
         for i in range (1, 301):
             t = i/2000
             # WAS 100, 2000 PROBABLY BETTER
@@ -880,6 +879,7 @@ class Plane():
             if foundX and foundY:
                 print("collision found!")
                 break
+
         if foundX and foundY:
             print("from future calculations")
             self.ahead = 1
@@ -922,7 +922,6 @@ class Plane():
 
         f.close()
         return False
-
 
 
     def chooseY(self, ypos, yneg):
